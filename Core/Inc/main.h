@@ -123,6 +123,9 @@ void Error_Handler(void);
 #define SWO_GPIO_Port GPIOB
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
+#define KEY_EXTI1_E01_Pin GPIO_PIN_1
+#define KEY_EXTI1_E01_GPIO_Port GPIOE
+#define KEY_EXTI1_E01_EXTI_IRQn EXTI1_IRQn
 
 /* USER CODE BEGIN Private defines */
 

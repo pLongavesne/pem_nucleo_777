@@ -198,6 +198,28 @@ void SysTick_Handler(void)
 /* please refer to the startup file (startup_stm32f7xx.s).                    */
 /******************************************************************************/
 
+/**
+  * @brief This function handles EXTI line1 interrupt.
+  */
+void EXTI1_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI1_IRQn 0 */
+  if (!HAL_GPIO_ReadPin(KEY_ENTER_G05_GPIO_Port, KEY_ENTER_G05_Pin))
+  {
+	  HAL_GPIO_TogglePin(LED_YELLOW_C14_GPIO_Port, LED_YELLOW_C14_Pin);
+  }
+  else if (!HAL_GPIO_ReadPin(KEY_LEFT_G03_GPIO_Port, KEY_LEFT_G03_Pin))
+  {
+	  HAL_GPIO_TogglePin(LED_GREEN_C15_GPIO_Port, LED_GREEN_C15_Pin);
+  }
+
+  /* USER CODE END EXTI1_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(KEY_EXTI1_E01_Pin);
+  /* USER CODE BEGIN EXTI1_IRQn 1 */
+
+  /* USER CODE END EXTI1_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */

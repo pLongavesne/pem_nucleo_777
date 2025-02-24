@@ -127,10 +127,6 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	 // HAL_GPIO_TogglePin(LED_RED_C13_GPIO_Port, LED_RED_C13_Pin);
-	  HAL_GPIO_TogglePin(LED_YELLOW_C14_GPIO_Port, LED_YELLOW_C14_Pin);
-	  HAL_GPIO_TogglePin(LED_GREEN_C15_GPIO_Port, LED_GREEN_C15_Pin);
-	  HAL_Delay(1000);
 
     /* USER CODE END WHILE */
 
@@ -329,6 +325,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, LED_YELLOW_C14_Pin|LED_GREEN_C15_Pin, GPIO_PIN_RESET);
@@ -367,6 +364,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(USB_PowerSwitchOn_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : KEY_EXTI1_E01_Pin */
+  GPIO_InitStruct.Pin = KEY_EXTI1_E01_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(KEY_EXTI1_E01_GPIO_Port, &GPIO_InitStruct);
+
+  /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
