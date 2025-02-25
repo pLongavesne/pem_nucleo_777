@@ -77,6 +77,8 @@ void Error_Handler(void);
 #define RMII_RXD1_GPIO_Port GPIOC
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define SD_CD_B02_Pin GPIO_PIN_2
+#define SD_CD_B02_GPIO_Port GPIOB
 #define HKEY_POWER_G00_Pin GPIO_PIN_0
 #define HKEY_POWER_G00_GPIO_Port GPIOG
 #define KEY_UP_PG01_Pin GPIO_PIN_1
@@ -101,6 +103,10 @@ void Error_Handler(void);
 #define USB_PowerSwitchOn_GPIO_Port GPIOG
 #define USB_OverCurrent_Pin GPIO_PIN_7
 #define USB_OverCurrent_GPIO_Port GPIOG
+#define SD_D0_C8_Pin GPIO_PIN_8
+#define SD_D0_C8_GPIO_Port GPIOC
+#define SD_D1_C9_Pin GPIO_PIN_9
+#define SD_D1_C9_GPIO_Port GPIOC
 #define USB_SOF_Pin GPIO_PIN_8
 #define USB_SOF_GPIO_Port GPIOA
 #define USB_VBUS_Pin GPIO_PIN_9
@@ -115,6 +121,14 @@ void Error_Handler(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
+#define SD_D2_C10_Pin GPIO_PIN_10
+#define SD_D2_C10_GPIO_Port GPIOC
+#define SD_D3_C11_Pin GPIO_PIN_11
+#define SD_D3_C11_GPIO_Port GPIOC
+#define SD_CLK_C12_Pin GPIO_PIN_12
+#define SD_CLK_C12_GPIO_Port GPIOC
+#define SD_CMD_D02_Pin GPIO_PIN_2
+#define SD_CMD_D02_GPIO_Port GPIOD
 #define RMII_TX_EN_Pin GPIO_PIN_11
 #define RMII_TX_EN_GPIO_Port GPIOG
 #define RMII_TXD0_Pin GPIO_PIN_13
