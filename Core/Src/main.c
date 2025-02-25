@@ -83,6 +83,9 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+const uint8_t* helloStr = (const uint8_t*)"Hello Uart !!!\n\r";
+uint16_t helloStrLen = 0;//strlen((const char *)helloStr);
+
 /* USER CODE END 0 */
 
 /**
@@ -93,6 +96,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	helloStrLen = strlen((const char *)helloStr);
 
   /* USER CODE END 1 */
 
@@ -127,7 +131,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
+	  HAL_UART_Transmit(&huart3, helloStr, helloStrLen, 10);
+	  HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
