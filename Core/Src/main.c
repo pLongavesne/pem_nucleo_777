@@ -32,7 +32,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define BUFFER_SIZE 255
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -97,7 +97,10 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 	helloStrLen = strlen((const char *)helloStr);
-
+	uint8_t rxBuff[BUFFER_SIZE] = {0x00};
+	uint8_t rxBuffLen = 0;
+	uint8_t txBuff[BUFFER_SIZE] = {0x00};
+	uint8_t txBuffLen = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration--------------------------------------------------------*/
@@ -131,8 +134,22 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  HAL_UART_Transmit(&huart3, helloStr, helloStrLen, 10);
-	  HAL_Delay(1000);
+	  //HAL_UART_Transmit(&huart3, helloStr, helloStrLen, 1);
+	  //HAL_UART_Transmit_IT(&huart3, helloStr, helloStrLen);
+	  HAL_UART_Receive_IT(&huart3, rxBuff, BUFFER_SIZE);
+	  rxBuffLen = strlen((const char *)rxBuff);
+	  if (rxBuffLen > 10)
+	  {
+		  txBuff[0] = '\n';
+		  txBuff[1] = '\r';
+		  memmove(txBuff+2, rxBuff, BUFFER_SIZE-2);
+		  txBuffLen = strlen((const char *)txBuff);
+		  HAL_UART_Transmit_IT(&huart3, txBuff, txBuffLen);
+		  rxBuffLen = 0;
+		  memset(rxBuff, 0x00, BUFFER_SIZE);
+		  HAL_UART_AbortReceive_IT(&huart3);
+	  }
+	  //HAL_Delay(1000);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
