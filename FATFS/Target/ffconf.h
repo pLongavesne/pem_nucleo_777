@@ -71,7 +71,7 @@
 /* This option switches attribute manipulation functions, f_chmod() and f_utime().
 /  (0:Disable or 1:Enable) Also _FS_READONLY needs to be 0 to enable this option. */
 
-#define _USE_LABEL           0
+#define _USE_LABEL           1
 /* This option switches volume label functions, f_getlabel() and f_setlabel().
 /  (0:Disable or 1:Enable) */
 
@@ -168,7 +168,7 @@
 /  the drive ID strings are: A-Z and 0-9. */
 /* USER CODE END Volumes */
 
-#define _MULTI_PARTITION     0 /* 0:Single partition, 1:Multiple partition */
+#define _MULTI_PARTITION     1 /* 0:Single partition, 1:Multiple partition */
 /* This option switches support of multi-partition on a physical drive.
 /  By default (0), each logical drive number is bound to the same physical drive
 /  number and only an FAT volume found on the physical drive will be mounted.
