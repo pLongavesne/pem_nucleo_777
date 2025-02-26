@@ -81,7 +81,33 @@ static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 /* USER CODE BEGIN PFP */
+uint8_t BSP_SD_Init(void)
+{
+  uint8_t sd_state = MSD_OK;
+  /* Check if the SD card is plugged in the slot */
+  if (BSP_SD_IsDetected() != SD_PRESENT)
+  {
+    return MSD_ERROR_SD_NOT_PRESENT;
+  }
+  /* HAL SD initialization */
+  sd_state = HAL_SD_Init(&hsd1);
+  /* Configure SD Bus width (4 bits mode selected) */
+  if (sd_state == MSD_OK)
+  {
+            /* Drop the clock to low sped when changing CKLCR for 4-bit mode
+             * See https://community.st.com/t5/stm32cubemx-mcus/stm32l4-sd-stm32cubemx-v5-0-0-sd-clock-speed-during-call-to/td-p/371550
+             * Calling SDIO_Init(), using the same settings as HAL_SD_InitCard(), will work here as well
+             */
+            MODIFY_REG(hsd1.Instance->CLKCR, SDMMC_CLKCR_WIDBUS_Msk | 0xFFU, SDMMC_BUS_WIDE_1B | SDMMC_INIT_CLK_DIV);
+          /* Enable wide operation */
+    if (HAL_SD_ConfigWideBusOperation(&hsd1, SDMMC_BUS_WIDE_4B) != HAL_OK)
+    {
+      sd_state = MSD_ERROR;
+    }
+  }
 
+  return sd_state;
+}
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -125,7 +151,6 @@ int main(void)
   MX_SDMMC1_SD_Init();
   MX_FATFS_Init();
   /* USER CODE BEGIN 2 */
-
 
 
 
@@ -311,7 +336,7 @@ static void MX_SDMMC1_SD_Init(void)
   hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
   hsd1.Init.ClockBypass = SDMMC_CLOCK_BYPASS_DISABLE;
   hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-  hsd1.Init.BusWide = SDMMC_BUS_WIDE_1B;
+  hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
   hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
   hsd1.Init.ClockDiv = 16;
   /* USER CODE BEGIN SDMMC1_Init 2 */
