@@ -86,8 +86,7 @@ static void MX_SDMMC1_SD_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t sdInOutFlg = 0;
-uint8_t sdInOutFlg_bak = 0;
+#define SYSTEM_DISK "0:/"
 /* USER CODE END 0 */
 
 /**
@@ -98,6 +97,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+
 
   /* USER CODE END 1 */
 
@@ -128,12 +128,60 @@ int main(void)
 
 
 
+
+
+
+
+
+
+
+  uint8_t sd_state = MSD_OK;
+  HAL_SD_MspInit(&hsd1);	/* Init of SDCCM and GPIO needed by HAL_SD API */
+  sd_state = HAL_SD_Init(&hsd1);
+
+  uint8_t retVal = FATFS_GetAttachedDriversNbr();	// lit de nombre de disque
+  if (retVal < 1)
+  {
+	  while(1);
+  }
+
+  retVal = BSP_PlatformIsDetected();				// test si une carte est bien insérée
+  if (retVal == SD_NOT_PRESENT)
+  {
+	  HAL_Delay(1); //sd not detected
+  }
+  else
+  {
+	  HAL_Delay(1); //sd detected
+  }
+
+  retVal = disk_initialize(0);
+
+
+
+  retVal = f_mount(&SDFatFS,  SYSTEM_DISK, 1);      // mount the system partition to init SD BSP and HAL
+  retVal = f_mount(0,  SYSTEM_DISK, 0);      // mount the system partition to init SD BSP and HAL
+
+
+  retVal = disk_read (0,(unsigned char*)&SDFatFS.win,0,1);// read the first setcor of the card (MBR)
+  if (retVal)
+  {
+	  while(1);
+  }
+
+
+
+  HAL_Delay(1); /* Just to breakpoint on this line */
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+
 
     /* USER CODE END WHILE */
 
@@ -263,7 +311,7 @@ static void MX_SDMMC1_SD_Init(void)
   hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
   hsd1.Init.ClockBypass = SDMMC_CLOCK_BYPASS_DISABLE;
   hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-  hsd1.Init.BusWide = SDMMC_BUS_WIDE_4B;
+  hsd1.Init.BusWide = SDMMC_BUS_WIDE_1B;
   hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
   hsd1.Init.ClockDiv = 16;
   /* USER CODE BEGIN SDMMC1_Init 2 */
