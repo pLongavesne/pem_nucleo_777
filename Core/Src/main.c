@@ -81,6 +81,12 @@ static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_SDMMC1_SD_Init(void);
 /* USER CODE BEGIN PFP */
+/*
+ * Fonction BSP_SD_Init overiting the weak default function
+ * Initialisation de la sd en mode
+ * 1 wide bus puis configuration en
+ * mode 4 wide bus
+ */
 uint8_t BSP_SD_Init(void)
 {
   uint8_t sd_state = MSD_OK;
