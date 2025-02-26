@@ -134,15 +134,7 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if (sdInOutFlg ^ sdInOutFlg_bak)
-	  {
-		  sdInOutFlg_bak = sdInOutFlg;
-			for (int i=0; i<6; i++)
-			{
-				HAL_GPIO_TogglePin(LED_YELLOW_C14_GPIO_Port, LED_YELLOW_C14_Pin);
-				HAL_Delay(200);
-			}
-	  }
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
