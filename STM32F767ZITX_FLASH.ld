@@ -85,6 +85,15 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  .updatedata (READONLY) :
+  {
+  	. = ALIGN(4);
+  	*(.majdata)         /* .rodata sections (constants, strings, etc.) */
+    *(.majdata*)        /* .rodata* sections (constants, strings, etc.) */
+    . = ALIGN(4);
+  } >FLASH
+	
+
   .ARM.extab (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
     . = ALIGN(4);
