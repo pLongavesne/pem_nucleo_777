@@ -61,6 +61,16 @@ void Error_Handler(void);
 #define LED_YELLOW_C14_GPIO_Port GPIOC
 #define LED_GREEN_C15_Pin GPIO_PIN_15
 #define LED_GREEN_C15_GPIO_Port GPIOC
+#define QSPI_IO3_F06_Pin GPIO_PIN_6
+#define QSPI_IO3_F06_GPIO_Port GPIOF
+#define QSPI_IO2_F07_Pin GPIO_PIN_7
+#define QSPI_IO2_F07_GPIO_Port GPIOF
+#define QSPI_IO0_F08_Pin GPIO_PIN_8
+#define QSPI_IO0_F08_GPIO_Port GPIOF
+#define QSPI_IO1_F09_Pin GPIO_PIN_9
+#define QSPI_IO1_F09_GPIO_Port GPIOF
+#define QSPI_CLK_F10_Pin GPIO_PIN_10
+#define QSPI_CLK_F10_GPIO_Port GPIOF
 #define MCO_Pin GPIO_PIN_0
 #define MCO_GPIO_Port GPIOH
 #define RMII_MDC_Pin GPIO_PIN_1
@@ -121,6 +131,8 @@ void Error_Handler(void);
 #define RMII_TXD0_GPIO_Port GPIOG
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define QSPI_NCS_B06_Pin GPIO_PIN_6
+#define QSPI_NCS_B06_GPIO_Port GPIOB
 #define LD2_Pin GPIO_PIN_7
 #define LD2_GPIO_Port GPIOB
 #define KEY_EXTI1_E01_Pin GPIO_PIN_1

@@ -44,13 +44,16 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Memories definition */
 MEMORY
 {
-  RAM    (xrw)    : ORIGIN = 0x20000000,   LENGTH = 512K
-  FLASH    (rx)    : ORIGIN = 0x8000000,   LENGTH = 2048K
+  RAM    (xrw)     : ORIGIN = 0x20000000,   LENGTH = 512K
+  FLASH    (rx)    : ORIGIN = 0x08000000,   LENGTH = 2048K
+  QSPI     (rx)    : ORIGIN = 0x90000000,   LENGTH = 64M 
 }
+ /*DATAFLASH (rx)    : ORIGIN = 0x08100000,   LENGTH = 1024K*/
 
 /* Sections */
 SECTIONS
 {
+
   /* The startup code into "FLASH" Rom type memory */
   .isr_vector :
   {
@@ -84,15 +87,6 @@ SECTIONS
     *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
     . = ALIGN(4);
   } >FLASH
-
-  .updatedata (READONLY) :
-  {
-  	. = ALIGN(4);
-  	*(.majdata)         /* .rodata sections (constants, strings, etc.) */
-    *(.majdata*)        /* .rodata* sections (constants, strings, etc.) */
-    . = ALIGN(4);
-  } >FLASH
-	
 
   .ARM.extab (READONLY) : /* The "READONLY" keyword is only supported in GCC11 and later, remove it if using GCC10 or earlier. */
   {
@@ -193,4 +187,11 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
+
+
+  .ExtQSPIFlash     : 
+  {
+   *(.ExtQSPIFlash) 
+   } >QSPI 
+
 }
