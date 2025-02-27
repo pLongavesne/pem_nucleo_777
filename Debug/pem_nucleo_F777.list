@@ -1580,98 +1580,98 @@ void HAL_PCD_MspInit(PCD_HandleTypeDef* hpcd)
 08000c90 <NMI_Handler>:
 /******************************************************************************/
 /**
-  * @brief This function handles Non maskable interrupt.
-  */
+ * @brief This function handles Non maskable interrupt.
+ */
 void NMI_Handler(void)
 {
  8000c90:	b480      	push	{r7}
  8000c92:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN NonMaskableInt_IRQn 0 */
+	/* USER CODE BEGIN NonMaskableInt_IRQn 0 */
 
-  /* USER CODE END NonMaskableInt_IRQn 0 */
-  /* USER CODE BEGIN NonMaskableInt_IRQn 1 */
-   while (1)
+	/* USER CODE END NonMaskableInt_IRQn 0 */
+	/* USER CODE BEGIN NonMaskableInt_IRQn 1 */
+	while (1)
  8000c94:	bf00      	nop
  8000c96:	e7fd      	b.n	8000c94 <NMI_Handler+0x4>
 
 08000c98 <HardFault_Handler>:
 
 /**
-  * @brief This function handles Hard fault interrupt.
-  */
+ * @brief This function handles Hard fault interrupt.
+ */
 void HardFault_Handler(void)
 {
  8000c98:	b480      	push	{r7}
  8000c9a:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN HardFault_IRQn 0 */
+	/* USER CODE BEGIN HardFault_IRQn 0 */
 
-  /* USER CODE END HardFault_IRQn 0 */
-  while (1)
+	/* USER CODE END HardFault_IRQn 0 */
+	while (1)
  8000c9c:	bf00      	nop
  8000c9e:	e7fd      	b.n	8000c9c <HardFault_Handler+0x4>
 
 08000ca0 <MemManage_Handler>:
 
 /**
-  * @brief This function handles Memory management fault.
-  */
+ * @brief This function handles Memory management fault.
+ */
 void MemManage_Handler(void)
 {
  8000ca0:	b480      	push	{r7}
  8000ca2:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN MemoryManagement_IRQn 0 */
+	/* USER CODE BEGIN MemoryManagement_IRQn 0 */
 
-  /* USER CODE END MemoryManagement_IRQn 0 */
-  while (1)
+	/* USER CODE END MemoryManagement_IRQn 0 */
+	while (1)
  8000ca4:	bf00      	nop
  8000ca6:	e7fd      	b.n	8000ca4 <MemManage_Handler+0x4>
 
 08000ca8 <BusFault_Handler>:
 
 /**
-  * @brief This function handles Pre-fetch fault, memory access fault.
-  */
+ * @brief This function handles Pre-fetch fault, memory access fault.
+ */
 void BusFault_Handler(void)
 {
  8000ca8:	b480      	push	{r7}
  8000caa:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN BusFault_IRQn 0 */
+	/* USER CODE BEGIN BusFault_IRQn 0 */
 
-  /* USER CODE END BusFault_IRQn 0 */
-  while (1)
+	/* USER CODE END BusFault_IRQn 0 */
+	while (1)
  8000cac:	bf00      	nop
  8000cae:	e7fd      	b.n	8000cac <BusFault_Handler+0x4>
 
 08000cb0 <UsageFault_Handler>:
 
 /**
-  * @brief This function handles Undefined instruction or illegal state.
-  */
+ * @brief This function handles Undefined instruction or illegal state.
+ */
 void UsageFault_Handler(void)
 {
  8000cb0:	b480      	push	{r7}
  8000cb2:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN UsageFault_IRQn 0 */
+	/* USER CODE BEGIN UsageFault_IRQn 0 */
 
-  /* USER CODE END UsageFault_IRQn 0 */
-  while (1)
+	/* USER CODE END UsageFault_IRQn 0 */
+	while (1)
  8000cb4:	bf00      	nop
  8000cb6:	e7fd      	b.n	8000cb4 <UsageFault_Handler+0x4>
 
 08000cb8 <SVC_Handler>:
 
 /**
-  * @brief This function handles System service call via SWI instruction.
-  */
+ * @brief This function handles System service call via SWI instruction.
+ */
 void SVC_Handler(void)
 {
  8000cb8:	b480      	push	{r7}
  8000cba:	af00      	add	r7, sp, #0
 
-  /* USER CODE END SVCall_IRQn 0 */
-  /* USER CODE BEGIN SVCall_IRQn 1 */
+	/* USER CODE END SVCall_IRQn 0 */
+	/* USER CODE BEGIN SVCall_IRQn 1 */
 
-  /* USER CODE END SVCall_IRQn 1 */
+	/* USER CODE END SVCall_IRQn 1 */
 }
  8000cbc:	bf00      	nop
  8000cbe:	46bd      	mov	sp, r7
@@ -1681,17 +1681,17 @@ void SVC_Handler(void)
 08000cc6 <DebugMon_Handler>:
 
 /**
-  * @brief This function handles Debug monitor.
-  */
+ * @brief This function handles Debug monitor.
+ */
 void DebugMon_Handler(void)
 {
  8000cc6:	b480      	push	{r7}
  8000cc8:	af00      	add	r7, sp, #0
 
-  /* USER CODE END DebugMonitor_IRQn 0 */
-  /* USER CODE BEGIN DebugMonitor_IRQn 1 */
+	/* USER CODE END DebugMonitor_IRQn 0 */
+	/* USER CODE BEGIN DebugMonitor_IRQn 1 */
 
-  /* USER CODE END DebugMonitor_IRQn 1 */
+	/* USER CODE END DebugMonitor_IRQn 1 */
 }
  8000cca:	bf00      	nop
  8000ccc:	46bd      	mov	sp, r7
@@ -1701,17 +1701,17 @@ void DebugMon_Handler(void)
 08000cd4 <PendSV_Handler>:
 
 /**
-  * @brief This function handles Pendable request for system service.
-  */
+ * @brief This function handles Pendable request for system service.
+ */
 void PendSV_Handler(void)
 {
  8000cd4:	b480      	push	{r7}
  8000cd6:	af00      	add	r7, sp, #0
 
-  /* USER CODE END PendSV_IRQn 0 */
-  /* USER CODE BEGIN PendSV_IRQn 1 */
+	/* USER CODE END PendSV_IRQn 0 */
+	/* USER CODE BEGIN PendSV_IRQn 1 */
 
-  /* USER CODE END PendSV_IRQn 1 */
+	/* USER CODE END PendSV_IRQn 1 */
 }
  8000cd8:	bf00      	nop
  8000cda:	46bd      	mov	sp, r7
@@ -1721,20 +1721,20 @@ void PendSV_Handler(void)
 08000ce2 <SysTick_Handler>:
 
 /**
-  * @brief This function handles System tick timer.
-  */
+ * @brief This function handles System tick timer.
+ */
 void SysTick_Handler(void)
 {
  8000ce2:	b580      	push	{r7, lr}
  8000ce4:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN SysTick_IRQn 0 */
+	/* USER CODE BEGIN SysTick_IRQn 0 */
 
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
+	/* USER CODE END SysTick_IRQn 0 */
+	HAL_IncTick();
  8000ce6:	f000 f89f 	bl	8000e28 <HAL_IncTick>
-  /* USER CODE BEGIN SysTick_IRQn 1 */
+	/* USER CODE BEGIN SysTick_IRQn 1 */
 
-  /* USER CODE END SysTick_IRQn 1 */
+	/* USER CODE END SysTick_IRQn 1 */
 }
  8000cea:	bf00      	nop
  8000cec:	bd80      	pop	{r7, pc}
@@ -1743,48 +1743,48 @@ void SysTick_Handler(void)
 08000cf0 <EXTI1_IRQHandler>:
 
 /**
-  * @brief This function handles EXTI line1 interrupt.
-  */
+ * @brief This function handles EXTI line1 interrupt.
+ */
 void EXTI1_IRQHandler(void)
 {
  8000cf0:	b580      	push	{r7, lr}
  8000cf2:	af00      	add	r7, sp, #0
-  /* USER CODE BEGIN EXTI1_IRQn 0 */
-  if (!HAL_GPIO_ReadPin(KEY_ENTER_G05_GPIO_Port, KEY_ENTER_G05_Pin))
+	/* USER CODE BEGIN EXTI1_IRQn 0 */
+	if (!HAL_GPIO_ReadPin(KEY_ENTER_G05_GPIO_Port, KEY_ENTER_G05_Pin))
  8000cf4:	2120      	movs	r1, #32
  8000cf6:	480e      	ldr	r0, [pc, #56]	@ (8000d30 <EXTI1_IRQHandler+0x40>)
  8000cf8:	f000 fee6 	bl	8001ac8 <HAL_GPIO_ReadPin>
  8000cfc:	4603      	mov	r3, r0
  8000cfe:	2b00      	cmp	r3, #0
  8000d00:	d105      	bne.n	8000d0e <EXTI1_IRQHandler+0x1e>
-  {
-	  HAL_GPIO_TogglePin(LED_YELLOW_C14_GPIO_Port, LED_YELLOW_C14_Pin);
+	{
+		HAL_GPIO_TogglePin(LED_YELLOW_C14_GPIO_Port, LED_YELLOW_C14_Pin);
  8000d02:	f44f 4180 	mov.w	r1, #16384	@ 0x4000
  8000d06:	480b      	ldr	r0, [pc, #44]	@ (8000d34 <EXTI1_IRQHandler+0x44>)
  8000d08:	f000 ff0f 	bl	8001b2a <HAL_GPIO_TogglePin>
  8000d0c:	e00b      	b.n	8000d26 <EXTI1_IRQHandler+0x36>
-  }
-  else if (!HAL_GPIO_ReadPin(KEY_LEFT_G03_GPIO_Port, KEY_LEFT_G03_Pin))
+	}
+	else if (!HAL_GPIO_ReadPin(KEY_LEFT_G03_GPIO_Port, KEY_LEFT_G03_Pin))
  8000d0e:	2108      	movs	r1, #8
  8000d10:	4807      	ldr	r0, [pc, #28]	@ (8000d30 <EXTI1_IRQHandler+0x40>)
  8000d12:	f000 fed9 	bl	8001ac8 <HAL_GPIO_ReadPin>
  8000d16:	4603      	mov	r3, r0
  8000d18:	2b00      	cmp	r3, #0
  8000d1a:	d104      	bne.n	8000d26 <EXTI1_IRQHandler+0x36>
-  {
-	  HAL_GPIO_TogglePin(LED_GREEN_C15_GPIO_Port, LED_GREEN_C15_Pin);
+	{
+		HAL_GPIO_TogglePin(LED_GREEN_C15_GPIO_Port, LED_GREEN_C15_Pin);
  8000d1c:	f44f 4100 	mov.w	r1, #32768	@ 0x8000
  8000d20:	4804      	ldr	r0, [pc, #16]	@ (8000d34 <EXTI1_IRQHandler+0x44>)
  8000d22:	f000 ff02 	bl	8001b2a <HAL_GPIO_TogglePin>
-  }
+	}
 
-  /* USER CODE END EXTI1_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(KEY_EXTI1_E01_Pin);
+	/* USER CODE END EXTI1_IRQn 0 */
+	HAL_GPIO_EXTI_IRQHandler(KEY_EXTI1_E01_Pin);
  8000d26:	2002      	movs	r0, #2
  8000d28:	f000 ff1a 	bl	8001b60 <HAL_GPIO_EXTI_IRQHandler>
-  /* USER CODE BEGIN EXTI1_IRQn 1 */
+	/* USER CODE BEGIN EXTI1_IRQn 1 */
 
-  /* USER CODE END EXTI1_IRQn 1 */
+	/* USER CODE END EXTI1_IRQn 1 */
 }
  8000d2c:	bf00      	nop
  8000d2e:	bd80      	pop	{r7, pc}
