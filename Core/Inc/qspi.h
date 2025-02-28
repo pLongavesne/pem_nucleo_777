@@ -41,6 +41,9 @@ unsigned char  rad_qspi_flash_init(void);
 unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode);
 
 unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt);
+unsigned int rad_qspi_flash_write_page(uint32_t addr, uint8_t* buffer, uint32_t szt);
+unsigned int rad_qspi_flash_read_status_reg(uint8_t* buffer);
+unsigned int rad_qspi_flash_read_control_reg(uint8_t* buffer);
 
 
 /* USER CODE END Private defines */
@@ -70,6 +73,8 @@ typedef enum
 /*MX25L512 commands */
 #define WRITE_ENABLE_CMD             0x06    // OK Enable write access
 #define READ_STATUS_REG_CMD          0x05    // OK Read status byte
+#define READ_STATUS_2_REG_CMD          0x07    // OK Read status byte
+
 #define WRITE_STATUS_REG_CMD         0x01    // OK Write status byte
 //#define SECTOR_ERASE_CMD             0x20    // No sector erase
 #define SECTOR_ERASE_CMD             0xDC    // Erase a sector/block

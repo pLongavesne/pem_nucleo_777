@@ -35,7 +35,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define MEM_PAGE_SIZE	512
 
 
 /* USER CODE END PD */
@@ -152,12 +152,46 @@ int main(void)
 	if(rad_qspi_flash_init() == HAL_OK)                             // Init of QSPI and its FLASH
 	{
 
-		uint8_t buffer[256] = {0x00};
+		uint8_t statusBefore[2] = {0x00};
+		uint8_t statusAfter[2] = {0x00};
+		uint8_t controlBefore[2] = {0x00};
+		uint8_t controlAfter[2] = {0x00};
 
-		rad_qspi_flash_read(0x0, buffer, 256);
+		// ###################### READ STATUS & CONTROL REGISTER ###################################
+		if (rad_qspi_flash_read_status_reg(statusBefore) != HAL_OK)
+		{
+			while(1);
+		}
+		if (rad_qspi_flash_read_status_reg(controlBefore) != HAL_OK)
+		{
+			while(1);
+		}
+
+
+		// ###################### WRITE PAGE ###################################
+		uint8_t buffer[MEM_PAGE_SIZE] = {0x00};
+
+		if (rad_qspi_flash_write_page(0x0, buffer, MEM_PAGE_SIZE) != HAL_OK)
+		{
+			while(1);
+		}
+
+		// ###################### READ PAGE ###################################
+		if (rad_qspi_flash_read(0x0, buffer, MEM_PAGE_SIZE) != HAL_OK)
+		{
+			while(1);
+		}
+
+		// ###################### READ STATUS & CONTROL REGISTER ###################################
+		if (rad_qspi_flash_read_status_reg(statusAfter) != HAL_OK)
+		{
+			while(1);
+		}
+		if (rad_qspi_flash_read_status_reg(controlAfter) != HAL_OK)
+		{
+			while(1);
+		}
 		printf("%p", buffer);
-
-
 
 		/*if(rad_qspi_flash_enable_mem_map_mode (SPI_4IO_MODE))  //
 		{
