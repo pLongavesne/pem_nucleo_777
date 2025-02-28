@@ -282,7 +282,7 @@ unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode)
 }
 
 
-unsigned int rad_qspi_flah_read(uint32_t addr, uint8_t* buffer, uint32_t szt)
+unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt)
 {
 	QSPI_CommandTypeDef      s_command;
 

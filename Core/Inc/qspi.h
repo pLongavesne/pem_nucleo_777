@@ -40,7 +40,7 @@ unsigned char rad_qspi_flash_write_enable(void);
 unsigned char  rad_qspi_flash_init(void);
 unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode);
 
-unsigned int rad_qspi_flah_read(uint32_t addr, uint8_t* buffer, uint32_t szt);
+unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt);
 
 
 /* USER CODE END Private defines */

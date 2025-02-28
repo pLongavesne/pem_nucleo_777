@@ -154,7 +154,7 @@ int main(void)
 
 		uint8_t buffer[256] = {0x00};
 
-		rad_qspi_flah_read(0x0, buffer, 256);
+		rad_qspi_flash_read(0x0, buffer, 256);
 		printf("%p", buffer);
 
 
