@@ -1,0 +1,3 @@
+../Core/Src/qspi.c:16:15:rad_qspi_flash_write_enable	88	static
+../Core/Src/qspi.c:52:15:qspi_init	80	static
+../Core/Src/qspi.c:186:15:rad_qspi_flash_enable_mem_map_mode	72	static
