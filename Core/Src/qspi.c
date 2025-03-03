@@ -208,7 +208,7 @@ unsigned char  rad_qspi_flash_init(void)
 
 unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode)
 {
-	QSPI_CommandTypeDef      s_command;
+	QSPI_CommandTypeDef      s_command  = {};
 	QSPI_MemoryMappedTypeDef s_mem_mapped_cfg;
 
 	switch(Mode)
@@ -280,7 +280,7 @@ unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode)
 
 unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt)
 {
-	QSPI_CommandTypeDef      s_command;
+	QSPI_CommandTypeDef      s_command  = {};
 
 	s_command.InstructionMode = QSPI_INSTRUCTION_1_LINE;
 	s_command.Instruction     = QUAD_INOUT_FAST_READ_4_BYTE_ADDR_CMD;
@@ -309,7 +309,7 @@ unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt)
 
 unsigned int rad_qspi_flash_write_page(uint32_t addr, uint8_t* buffer, uint32_t szt)
 {
-	QSPI_CommandTypeDef      s_command;
+	QSPI_CommandTypeDef      s_command  = {};
 
 	s_command.InstructionMode = QSPI_INSTRUCTION_1_LINE;
 	s_command.Instruction     = QUAD_IN_FAST_PROG_CMD;
@@ -335,7 +335,7 @@ unsigned int rad_qspi_flash_write_page(uint32_t addr, uint8_t* buffer, uint32_t 
 
 unsigned int rad_qspi_flash_read_status_reg(uint8_t* buffer)
 {
-	QSPI_CommandTypeDef      sCommand;
+	QSPI_CommandTypeDef      sCommand = {};
 
 	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
 	sCommand.Instruction = READ_STATUS_REG_CMD;
@@ -398,7 +398,7 @@ unsigned int rad_qspi_flash_read_control_reg(uint8_t* buffer)
 {
 
 
-	QSPI_CommandTypeDef      sCommand;
+	QSPI_CommandTypeDef      sCommand = {};
 
 
 	sCommand.InstructionMode = QSPI_INSTRUCTION_1_LINE;
