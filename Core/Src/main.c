@@ -85,8 +85,8 @@ static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_QUADSPI_Init(void);
 /* USER CODE BEGIN PFP */
-//const volatile char __attribute__((section(".ExtQSPIFlash"))) majStr[] = {0x10, 0x11, 0x12, 0x13, 0x14, 0x15};
-const volatile unsigned char __attribute__((section(".dataflash")))buff [] = {"Empty"};
+
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -129,99 +129,19 @@ int main(void)
 	MX_QUADSPI_Init();
 	/* USER CODE BEGIN 2 */
 
+	uint8_t ST1_reg = 0x00;
+	uint8_t reg[2];
 
-	/*	uint8_t *ptrExtFlash = (uint8_t*)0x90000000;
-	uint8_t readBuff[512] = {0x00};
-	for (int i=0; i<512; i++)
-	{
-		readBuff[i] = *(ptrExtFlash+i);
-	}
-	printf("%p\n", readBuff);*/
-
-
-	/*uint32_t addr = 0x00;
-	uint32_t szt = 16;
-	uint8_t *buffer = (uint8_t *)malloc(szt);
-
-	if (flash_read(addr, buffer, szt) != HAL_OK)
-	{
-		while(1);
-	}*/
-
-	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_PIN_SET);
-	if(rad_qspi_flash_init() == HAL_OK)                             // Init of QSPI and its FLASH
-	{
-
-		uint8_t statusBefore[2] = {0x00};
-		uint8_t statusAfter[2] = {0x00};
-		uint8_t controlBefore[2] = {0x00};
-		uint8_t controlAfter[2] = {0x00};
-
-
-
-		if (rad_qspi_flash_erase(0x00) != HAL_OK)
-		{
-			while(1);
-		}
-		// ###################### READ STATUS & CONTROL REGISTER ###################################
-		if (rad_qspi_flash_read_status_reg(statusBefore) != HAL_OK)
-		{
-			while(1);
-		}
-		if (rad_qspi_flash_read_control_reg(controlBefore) != HAL_OK)
-		{
-			while(1);
-		}
-
-
-		// ###################### WRITE PAGE ###################################
-		uint8_t buffer[MEM_PAGE_SIZE] = {0x00};
-
-		if (rad_qspi_flash_write_page(0x0, buffer, MEM_PAGE_SIZE) != HAL_OK)
-		{
-			while(1);
-		}
-
-		// ###################### READ PAGE ###################################
-		if (rad_qspi_flash_read(0x0, buffer, MEM_PAGE_SIZE) != HAL_OK)
-		{
-			while(1);
-		}
-
-		// ###################### READ STATUS & CONTROL REGISTER ###################################
-		if (rad_qspi_flash_read_status_reg(statusAfter) != HAL_OK)
-		{
-			while(1);
-		}
-		if (rad_qspi_flash_read_control_reg(controlAfter) != HAL_OK)
-		{
-			while(1);
-		}
-		printf("%p", buffer);
-
-		/*if(rad_qspi_flash_enable_mem_map_mode (SPI_4IO_MODE))  //
-		{
-			while(1); // fail
-		}
-		else
-		{
-			uint8_t *ptrExtFlash = (uint8_t*)0x90000000;
-			uint8_t readBuff[512] = {0x00};
-			for (int i=0; i<512; i++)
-			{
-				readBuff[i] = *(ptrExtFlash+i);
-			}
-			printf("%p\n", readBuff);
-
-
-
-			while(1); // OK
-		}*/
-
-	}
-
-
-
+	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
+	qspi_command_RDSR1(&ST1_reg);
+	qspi_command_RDCR(&ST1_reg);
+	qspi_command_WREN();
+	qspi_command_RDSR1(&ST1_reg);
+	reg[0] = ST1_reg;
+	qspi_command_RDCR(&ST1_reg);
+	reg[1] = ST1_reg;
+	qspi_command_WRR(reg);
+	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */

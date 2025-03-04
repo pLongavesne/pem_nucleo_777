@@ -19,9 +19,189 @@
 #include <string.h>
 #include "qspi.h"
 #include "stm32F7xx_hal.h"
-
+#include "stm32f7xx.h"
 
 extern QSPI_HandleTypeDef hqspi;
+
+
+/*
+ * Configure the QSPI in indirect write mode
+ * with 1 line for intruction, adresse and data
+ */
+uint8_t config_qspi_indirect_write_1L()
+{
+	uint8_t retVal = HAL_OK;
+
+	if (READ_REG(hqspi.Instance->SR) & QUADSPI_SR_BUSY)
+	{
+		return HAL_ERROR;
+	}
+
+	/*
+	 * General configuration register
+	 */
+	// reset the configuration register
+	hqspi.Instance->CR = 0x00;
+	// prescaler 1:25
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
+	// 1/2 sampling shift delay
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_HALFCYCLE);
+
+	/*
+	 * Ext memory parametre register
+	 */
+	// configuring flash size
+	hqspi.Instance->DCR = 0x00;
+	// 64MB = 2^(FSISE+1)
+	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_FSIZE, ((uint8_t)25) << QUADSPI_DCR_FSIZE_Pos);
+
+	/*
+	 * Communication register
+	 */
+	hqspi.Instance->CCR = 0x00;
+	// configuring data on 1 line
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_DMODE, QSPI_DATA_1_LINE);
+	// configuring addresse on 4 Bytes
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_ADSIZE, QSPI_ADDRESS_32_BITS);
+	// configuring instruction on 1 line
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_IMODE, QSPI_INSTRUCTION_1_LINE);
+
+	// enable the QSPI
+	SET_BIT(hqspi.Instance->CR, QUADSPI_CR_EN);
+
+	return retVal;
+}
+
+/*
+ * Configure the QSPI in indirect read mode
+ * with 1 line for intruction, adresse and data
+ */
+uint8_t config_qspi_indirect_read_1L()
+{
+	uint8_t retVal = HAL_OK;
+
+	if (READ_REG(hqspi.Instance->SR) & QUADSPI_SR_BUSY)
+	{
+		return HAL_ERROR;
+	}
+
+	/*
+	 * General configuration register
+	 */
+	// reset the configuration register
+	hqspi.Instance->CR = 0x00;
+	// prescaler 1:25
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
+	// 1/2 sampling shift delay
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_HALFCYCLE);
+
+	/*
+	 * Ext memory parametre register
+	 */
+	// configuring flash size
+	hqspi.Instance->DCR = 0x00;
+	// 64MB = 2^(FSISE+1)
+	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_FSIZE, ((uint8_t)25) << QUADSPI_DCR_FSIZE_Pos);
+
+	/*
+	 * Communication register
+	 */
+	hqspi.Instance->CCR = 0x00;
+	// configuring data on 1 line
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_DMODE, QSPI_DATA_1_LINE);
+	// configuring addresse on 4 Bytes
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_ADSIZE, QSPI_ADDRESS_32_BITS);
+	// configuring instruction on 1 line
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_IMODE, QSPI_INSTRUCTION_1_LINE);
+	//configuring indirect read mode
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_FMODE, QUADSPI_CCR_FMODE_0);
+
+	// enable the QSPI
+	SET_BIT(hqspi.Instance->CR, QUADSPI_CR_EN);
+
+
+	return retVal;
+}
+
+/*
+ * Read status register 1 from the ext flash
+ */
+uint8_t qspi_command_RDSR1(uint8_t *reg)
+{
+	uint8_t retVal = HAL_OK;
+	config_qspi_indirect_read_1L();
+
+	// 1 byte to read
+	QUADSPI->DLR = 0;
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, READ_STATUS_REG_CMD);
+
+	//read the data
+	*reg = hqspi.Instance->DR;
+
+	return retVal;
+}
+
+/*
+ *  Read control register from the ext flash
+ */
+uint8_t qspi_command_RDCR(uint8_t *reg)
+{
+	uint8_t retVal = HAL_OK;
+	config_qspi_indirect_read_1L();
+
+	// 1 byte to read
+	QUADSPI->DLR = 0;
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, READ_CONFIGURATION_REG_CMD);
+
+	//read the data
+	*reg = hqspi.Instance->DR;
+
+	return retVal;
+}
+
+/*
+ *  Write enable commande for the ext flash
+ */
+uint8_t qspi_command_WREN()
+{
+	uint8_t retVal = HAL_OK;
+	config_qspi_indirect_write_1L();
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, WRITE_ENABLE_CMD);
+
+	//no data needed for this command
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_DMODE, QSPI_DATA_NONE);
+
+	return retVal;
+}
+
+/*
+ *  Write into the control register of the ext flash
+ *  first byte is the status register 1
+ *  second byte is the control register
+ */
+uint8_t qspi_command_WRR(uint8_t *data)
+{
+	uint8_t retVal = HAL_OK;
+	config_qspi_indirect_write_1L();
+
+	// 2 byte to write
+	QUADSPI->DLR = 1;
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, WRITE_STATUS_REG_CMD);
+
+	uint16_t data16 = (data[1]<<8) | data[0];
+	hqspi.Instance->DR = data16;
+
+	return retVal;
+}
+
 
 uint8_t QSPI_AutoPollingMemReady(void) {
 	QSPI_CommandTypeDef sCommand;
