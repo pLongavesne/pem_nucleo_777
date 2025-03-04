@@ -202,6 +202,27 @@ uint8_t qspi_command_WRR(uint8_t *data)
 	return retVal;
 }
 
+uint8_t qspi_command_read_1L(uint8_t *data, uint32_t addr, uint32_t szt)
+{
+	uint8_t retVal = HAL_OK;
+	config_qspi_indirect_read_1L();
+	// szt byte to write
+	QUADSPI->DLR = szt;
+
+
+
+	//addresse on 1L
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_ADMODE, QSPI_ADDRESS_1_LINE);
+
+	// instruction read
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, READ_4_BYTE_ADDR_CMD);
+
+	//addresse to read
+	hqspi.Instance->AR= addr;
+
+
+	return retVal;
+}
 
 uint8_t QSPI_AutoPollingMemReady(void) {
 	QSPI_CommandTypeDef sCommand;

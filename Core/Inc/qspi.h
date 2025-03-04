@@ -52,6 +52,8 @@ uint8_t qspi_command_RDSR1(uint8_t *reg);
 uint8_t qspi_command_RDCR(uint8_t *reg);
 uint8_t qspi_command_WREN();
 uint8_t qspi_command_WRR(uint8_t *data);
+uint8_t qspi_command_read_1L(uint8_t *data, uint32_t addr, uint32_t szt);
+
 
 /* USER CODE END Private defines */
 

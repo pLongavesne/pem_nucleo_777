@@ -141,6 +141,7 @@ int main(void)
 	qspi_command_RDCR(&ST1_reg);
 	reg[1] = ST1_reg;
 	qspi_command_WRR(reg);
+	qspi_command_read_1L(&ST1_reg, 0, 2);
 	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
 	/* USER CODE END 2 */
 
