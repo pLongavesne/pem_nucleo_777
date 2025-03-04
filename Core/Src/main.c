@@ -148,7 +148,7 @@ int main(void)
 		while(1);
 	}*/
 
-
+	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_PIN_SET);
 	if(rad_qspi_flash_init() == HAL_OK)                             // Init of QSPI and its FLASH
 	{
 
@@ -157,12 +157,18 @@ int main(void)
 		uint8_t controlBefore[2] = {0x00};
 		uint8_t controlAfter[2] = {0x00};
 
+
+
+		if (rad_qspi_flash_erase(0x00) != HAL_OK)
+		{
+			while(1);
+		}
 		// ###################### READ STATUS & CONTROL REGISTER ###################################
 		if (rad_qspi_flash_read_status_reg(statusBefore) != HAL_OK)
 		{
 			while(1);
 		}
-		if (rad_qspi_flash_read_status_reg(controlBefore) != HAL_OK)
+		if (rad_qspi_flash_read_control_reg(controlBefore) != HAL_OK)
 		{
 			while(1);
 		}
@@ -187,7 +193,7 @@ int main(void)
 		{
 			while(1);
 		}
-		if (rad_qspi_flash_read_status_reg(controlAfter) != HAL_OK)
+		if (rad_qspi_flash_read_control_reg(controlAfter) != HAL_OK)
 		{
 			while(1);
 		}
@@ -475,6 +481,9 @@ static void MX_GPIO_Init(void)
 	HAL_GPIO_WritePin(GPIOB, LD1_Pin|LD3_Pin|LD2_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pin Output Level */
+	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_PIN_RESET);
+
+	/*Configure GPIO pin Output Level */
 	HAL_GPIO_WritePin(USB_PowerSwitchOn_GPIO_Port, USB_PowerSwitchOn_Pin, GPIO_PIN_RESET);
 
 	/*Configure GPIO pins : LED_YELLOW_C14_Pin LED_GREEN_C15_Pin */
@@ -490,6 +499,13 @@ static void MX_GPIO_Init(void)
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	/*Configure GPIO pin : QSPI_RES_F13_Pin */
+	GPIO_InitStruct.Pin = QSPI_RES_F13_Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(QSPI_RES_F13_GPIO_Port, &GPIO_InitStruct);
 
 	/*Configure GPIO pins : HKEY_POWER_G00_Pin KEY_UP_PG01_Pin KEY_DOWN_G02_Pin KEY_LEFT_G03_Pin
                            KEY_RIGHT_G04_Pin KEY_ENTER_G05_Pin USB_OverCurrent_Pin */

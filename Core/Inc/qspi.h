@@ -44,7 +44,7 @@ unsigned int rad_qspi_flash_read(uint32_t addr, uint8_t* buffer, uint32_t szt);
 unsigned int rad_qspi_flash_write_page(uint32_t addr, uint8_t* buffer, uint32_t szt);
 unsigned int rad_qspi_flash_read_status_reg(uint8_t* buffer);
 unsigned int rad_qspi_flash_read_control_reg(uint8_t* buffer);
-
+unsigned int rad_qspi_flash_erase(uint32_t addr);
 
 /* USER CODE END Private defines */
 

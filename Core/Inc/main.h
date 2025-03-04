@@ -87,6 +87,8 @@ void Error_Handler(void);
 #define RMII_RXD1_GPIO_Port GPIOC
 #define LD1_Pin GPIO_PIN_0
 #define LD1_GPIO_Port GPIOB
+#define QSPI_RES_F13_Pin GPIO_PIN_13
+#define QSPI_RES_F13_GPIO_Port GPIOF
 #define HKEY_POWER_G00_Pin GPIO_PIN_0
 #define HKEY_POWER_G00_GPIO_Port GPIOG
 #define KEY_UP_PG01_Pin GPIO_PIN_1
