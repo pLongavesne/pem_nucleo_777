@@ -865,7 +865,7 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	QSPI_CommandTypeDef sCommand;
 	uint32_t end_addr, current_size, current_addr;
 
-	/* Calculation of the size between the write address and the end of the page */
+	/* Calculation of the size between the read address and the end of the page */
 	current_addr = 0;
 
 	//
@@ -890,14 +890,14 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	sCommand.AlternateBytes =QSPI_ALTERNATE_BYTES_NONE;
 	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD; // do not send the instruction on every transaction
 	sCommand.Instruction = READ_4_BYTE_ADDR_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
 
 	sCommand.DataMode = QSPI_DATA_1_LINE;
 	sCommand.NbData = buffer_size;
 	sCommand.Address = address;
-	sCommand.DummyCycles = 6;
+	//sCommand.DummyCycles = 6;
 
 	/* Perform a read page by page */
 	do {
@@ -913,7 +913,7 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 			return HAL_ERROR;
 		}
 
-		while (HAL_QSPI_GetState (&hqspi)!=HAL_QSPI_STATE_READY); //debug
+		//while (HAL_QSPI_GetState (&hqspi)!=HAL_QSPI_STATE_READY); //debug
 
 		/* Transmission of the data */
 		if (HAL_QSPI_Receive(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
