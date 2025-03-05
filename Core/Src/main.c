@@ -129,27 +129,54 @@ int main(void)
 	MX_QUADSPI_Init();
 	/* USER CODE BEGIN 2 */
 
-	uint8_t ST1_reg = 0x00;
-	uint8_t reg[2];
+//	uint8_t val = 0x00;
+//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
+//	qspi_command_BRRD(&val);
+//	val = 0x80;
+//	qspi_command_WREN();			//OK
+//	qspi_command_BRWR(&val);
+//	qspi_command_BRRD(&val);
+//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
 
-	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	qspi_command_RDSR1(&ST1_reg);
-	qspi_command_RDCR(&ST1_reg);
-	qspi_command_WREN();
-	qspi_command_RDSR1(&ST1_reg);
-	reg[0] = ST1_reg;
-	qspi_command_RDCR(&ST1_reg);
-	reg[1] = ST1_reg;
-	qspi_command_WRR(reg);
-	qspi_command_read_1L(&ST1_reg, 0, 2);
-	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
+
+	uint8_t reg[2];
+	uint8_t buffer[MEMORY_PAGE_SIZE];
 	while (1)
 	{
+		HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
+		// reading config and status registers
+		qspi_command_RDSR1(&reg[0]);
+		HAL_Delay(1);
+		qspi_command_RDCR(&reg[1]);	//OK
+		HAL_Delay(1);
 
+		//activate writing
+		qspi_command_WREN();			//OK
+		HAL_Delay(1);
+
+		// writing config
+		reg[0] = 0;
+		reg[1] = 2;			//mode qspi
+		qspi_command_WRR(reg);			//OK
+		HAL_Delay(1);
+
+		qspi_command_RDCR(&reg[1]);	//OK
+		HAL_Delay(1);
+
+		//activating 4 bytes addresses
+		reg[0] = 0x80;
+		qspi_command_BRWR(&reg[0]);
+		HAL_Delay(1);
+		//reading 256Bytes (1 page) from the addresse 0x00
+		qspi_command_read_1L(buffer, 0x01010101, MEMORY_PAGE_SIZE);
+		HAL_Delay(1);
+
+		HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
+		HAL_Delay(10);
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

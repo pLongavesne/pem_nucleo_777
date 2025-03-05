@@ -24,6 +24,48 @@
 extern QSPI_HandleTypeDef hqspi;
 
 
+
+
+
+
+uint8_t qspi_command_BRRD(uint8_t *reg)
+{
+	uint8_t retVal = HAL_OK;
+
+	config_qspi_indirect_read_1L();
+
+	// 1 byte to read
+	QUADSPI->DLR = 0;
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, READ_BANK_REG_CMD);
+
+	//read the data
+	*reg = hqspi.Instance->DR;
+
+	return retVal;
+}
+
+
+
+uint8_t qspi_command_BRWR(uint8_t *reg)
+{
+	uint8_t retVal = HAL_OK;
+
+	config_qspi_indirect_write_1L();
+
+	// 1 byte to write
+	QUADSPI->DLR = 0;
+
+	// write command in the instruction register
+	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_INSTRUCTION, WRITE_BANK_REG_CMD);
+
+	hqspi.Instance->DR = *reg;
+
+
+	return retVal;
+}
+
 /*
  * Configure the QSPI in indirect write mode
  * with 1 line for intruction, adresse and data
