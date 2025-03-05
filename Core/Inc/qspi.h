@@ -82,7 +82,7 @@ typedef enum
 #define MEMORY_FLASH_SIZE               0x4000000 /* 512 MBits => 64MBytes */
 #define MEMORY_BLOCK_SIZE               0x40000   /* 256 sectors of block size */
 #define MEMORY_SECTOR_SIZE              0x40000   /* 2564 subsectors of 256 kBytes */
-#define MEMORY_PAGE_SIZE                0x200     /* 131072 pages of 256 bytes */
+#define MEMORY_PAGE_SIZE                0x200     /* 131072 pages of 512 bytes */
 
 
 /*MX25L512 commands */
