@@ -27,11 +27,15 @@ extern QSPI_HandleTypeDef hqspi;
 
 
 
-
+/*
+ * Read the bank register
+ */
 uint8_t qspi_command_BRRD(uint8_t *reg)
 {
 	uint8_t retVal = HAL_OK;
 
+	// wait until the busy flag go down
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_read_1L();
 
 	// 1 byte to read
@@ -47,11 +51,13 @@ uint8_t qspi_command_BRRD(uint8_t *reg)
 }
 
 
-
+/*
+ * Write the bank register
+ */
 uint8_t qspi_command_BRWR(uint8_t *reg)
 {
 	uint8_t retVal = HAL_OK;
-
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_write_1L();
 
 	// 1 byte to write
@@ -73,7 +79,7 @@ uint8_t qspi_command_BRWR(uint8_t *reg)
 uint8_t config_qspi_indirect_write_1L()
 {
 	uint8_t retVal = HAL_OK;
-
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	if (READ_REG(hqspi.Instance->SR) & QUADSPI_SR_BUSY)
 	{
 		return HAL_ERROR;
@@ -122,10 +128,7 @@ uint8_t config_qspi_indirect_read_1L()
 {
 	uint8_t retVal = HAL_OK;
 
-	if (READ_REG(hqspi.Instance->SR) & QUADSPI_SR_BUSY)
-	{
-		return HAL_ERROR;
-	}
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 
 	/*
 	 * General configuration register
@@ -171,6 +174,7 @@ uint8_t config_qspi_indirect_read_1L()
 uint8_t qspi_command_RDSR1(uint8_t *reg)
 {
 	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_read_1L();
 
 	// 1 byte to read
@@ -191,6 +195,7 @@ uint8_t qspi_command_RDSR1(uint8_t *reg)
 uint8_t qspi_command_RDCR(uint8_t *reg)
 {
 	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_read_1L();
 
 	// 1 byte to read
@@ -211,6 +216,7 @@ uint8_t qspi_command_RDCR(uint8_t *reg)
 uint8_t qspi_command_WREN()
 {
 	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_write_1L();
 
 	// write command in the instruction register
@@ -230,6 +236,7 @@ uint8_t qspi_command_WREN()
 uint8_t qspi_command_WRR(uint8_t *data)
 {
 	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_write_1L();
 
 	// 2 byte to write
@@ -247,6 +254,7 @@ uint8_t qspi_command_WRR(uint8_t *data)
 uint8_t qspi_command_read_1L(uint8_t *data, uint32_t addr, uint32_t szt)
 {
 	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
 	config_qspi_indirect_read_1L();
 	// szt byte to write
 	QUADSPI->DLR = szt;
