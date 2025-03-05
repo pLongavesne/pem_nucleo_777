@@ -56,6 +56,10 @@ uint8_t qspi_command_WREN();
 uint8_t qspi_command_WRR(uint8_t *data);
 uint8_t qspi_command_read_1L(uint8_t *data, uint32_t addr, uint32_t szt);
 
+uint8_t CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
+uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
+uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress);
+uint8_t QSPI_WriteEnable(void);
 
 /* USER CODE END Private defines */
 
@@ -122,6 +126,7 @@ typedef enum
 #define QUAD_INOUT_FAST_READ_4_BYTE_ADDR_CMD  0xEC
 #define QUAD_INOUT_FAST_READ_DDR_CMD          0xED
 #define QUAD_INOUT_READ_DDR_4_BYTE_ADDR_CMD   0xEE
+#define WRITE_PAGE_CMD         				  0x12
 
 /* Dummy cycles for STR read mode */
 #define DUMMY_CLOCK_CYCLES_READ_QUAD_LDR  3   //

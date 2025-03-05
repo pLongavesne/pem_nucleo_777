@@ -85,7 +85,7 @@ static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_QUADSPI_Init(void);
 /* USER CODE BEGIN PFP */
-
+#define BUFFER_SIZE 1
 
 /* USER CODE END PFP */
 
@@ -144,7 +144,8 @@ int main(void)
 	/* USER CODE BEGIN WHILE */
 
 	uint8_t ST1_CR_reg[2];
-	uint8_t buffer[MEMORY_PAGE_SIZE];
+	uint8_t buffer[BUFFER_SIZE];
+	uint8_t buffer2[BUFFER_SIZE];
 	uint8_t BR_reg = 0x00;
 	while (1)
 	{
@@ -171,10 +172,17 @@ int main(void)
 		qspi_command_RDCR(&ST1_CR_reg[1]);
 
 		// read a page
-		qspi_command_read_1L(buffer, (uint32_t)0x00000000, 1);
+	//	qspi_command_read_1L(buffer, (uint32_t)0x00000000, 4);
 		HAL_Delay(10);
-		HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
-
+		//HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_LOW);
+		CSP_QSPI_EraseSector(0x00000000, MEMORY_SECTOR_SIZE);
+		CSP_QSPI_ReadMemory(buffer, 0x00000000, BUFFER_SIZE);
+		memset(buffer,0x01, BUFFER_SIZE);
+		memset(buffer2,0x00, BUFFER_SIZE);
+		//memmove(buffer, "Hello from qspi!!", strlen("Hello from qspi!!"));
+		CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
+		CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
+		HAL_Delay(1000);
 
 		//		HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
 		//		// reading config and status registers
@@ -548,3 +556,4 @@ void assert_failed(uint8_t *file, uint32_t line)
 	/* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
+
