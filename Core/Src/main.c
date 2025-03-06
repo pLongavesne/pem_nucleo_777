@@ -136,7 +136,7 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	qspi_config();
-	uint8_t buffer[BUFFER_SIZE];
+	uint8_t buffer[MEMORY_SECTOR_SIZE];
 	uint8_t buffer2[BUFFER_SIZE];
 	uint8_t SR1Reg = 0xFF;
 	uint8_t CRReg = 0xFF;
@@ -169,14 +169,27 @@ int main(void)
 	int dataSize = strlen(strLipsum);
 	uint8_t retVal = HAL_OK;
 	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
-	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
+
+
+	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, MEMORY_SECTOR_SIZE);
+
+	int toWrite = dataSize;
 	// ecriture de plusieurs buffer a partir de l'adresse 0
 	for (int i=0; i<dataSize; i+=BUFFER_SIZE)
 	{
+		if (toWrite > BUFFER_SIZE)
+		{
+			toWrite = BUFFER_SIZE;
+		}
+		else
+		{
+			toWrite %= BUFFER_SIZE;
+		}
 		memset(buffer,0x00, BUFFER_SIZE);
-		memmove(buffer, strLipsum+addresseOffset, BUFFER_SIZE);
-		CSP_QSPI_WriteMemory(buffer, (ADDR_CHAMBER_FIRMWARE+addresseOffset), BUFFER_SIZE);
-		addresseOffset += BUFFER_SIZE;
+		memmove(buffer, strLipsum+addresseOffset, toWrite);
+		CSP_QSPI_WriteMemory(buffer, (ADDR_CHAMBER_FIRMWARE+addresseOffset), toWrite);
+		addresseOffset += toWrite;
+		toWrite = dataSize - addresseOffset;
 	}
 
 	uint8_t reg[2] =  {0x00};
@@ -191,7 +204,7 @@ int main(void)
 
 
 
-	// lecture de plussieurs buffer a partir de l'adresse 0
+	// lecture de plusieurs buffer a partir de l'adresse 0
 	uint8_t *bufferFullRead = (uint8_t*)malloc(dataSize);
 	addresseOffset = 0;
 	for (int i=0; i<dataSize; i+=512)
@@ -204,7 +217,7 @@ int main(void)
 
 	}
 
-
+	int lenStrRead = strlen(bufferFullRead);
 
 	//CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
 	//CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
