@@ -46,6 +46,7 @@ unsigned int rad_qspi_flash_read_status_reg(uint8_t* buffer);
 unsigned int rad_qspi_flash_read_control_reg(uint8_t* buffer);
 unsigned int rad_qspi_flash_erase(uint32_t addr);
 
+uint8_t qspi_config();
 uint8_t config_qspi_indirect_write_1L();
 uint8_t config_qspi_indirect_read_1L();
 uint8_t qspi_command_RDSR1(uint8_t *reg);

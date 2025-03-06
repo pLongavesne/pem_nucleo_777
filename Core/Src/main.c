@@ -26,6 +26,7 @@
 #include "stdlib.h"
 #include "qspi.h"
 
+#include "str_lipsum.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -133,20 +134,49 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-
+	qspi_config();
 	uint8_t buffer[BUFFER_SIZE];
 	uint8_t buffer2[BUFFER_SIZE];
 	const char *str = "Hi from qspi!!";
 
 	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	HAL_Delay(10);
+	//		HAL_Delay(10);
 	CSP_QSPI_EraseSector(0x00000000, MEMORY_SECTOR_SIZE);
 	CSP_QSPI_ReadMemory(buffer, 0x00000000, BUFFER_SIZE);
 	memset(buffer,0x01, BUFFER_SIZE);
-	memset(buffer2,0x00, BUFFER_SIZE);
 	memmove(buffer, str, strlen(str));
+	memset(buffer2, 0x00, BUFFER_SIZE);
+
 	CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
 	CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
+
+
+	while(1);
+	int addresseOffset = 0;
+	int dataSize = strlen(strLipsum);
+
+	for (int i=0; i<dataSize; i+=BUFFER_SIZE)
+	{
+		memset(buffer,0x00, BUFFER_SIZE);
+		memmove(buffer, strLipsum+addresseOffset, BUFFER_SIZE);
+		CSP_QSPI_WriteMemory(buffer, (0x00000000+addresseOffset), BUFFER_SIZE);
+		addresseOffset += BUFFER_SIZE;
+	}
+
+	uint8_t *bufferFullRead = (uint8_t*)malloc(dataSize);
+	addresseOffset = 0;
+	for (int i=0; i<dataSize; i+=512)
+	{
+		memset(buffer2,0x00, BUFFER_SIZE);
+		CSP_QSPI_ReadMemory(buffer2, (0x00000000+addresseOffset), BUFFER_SIZE);
+		memmove((bufferFullRead+addresseOffset), buffer2, BUFFER_SIZE);
+		addresseOffset += BUFFER_SIZE;
+	}
+
+
+
+	CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
+	//CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
 
 
 	while (1)

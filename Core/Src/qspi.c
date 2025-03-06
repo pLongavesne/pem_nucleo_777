@@ -71,6 +71,41 @@ uint8_t qspi_command_BRWR(uint8_t *reg)
 
 	return retVal;
 }
+uint8_t qspi_config()
+{
+	uint8_t retVal = HAL_OK;
+	while (hqspi.Instance->SR & QUADSPI_SR_BUSY){}
+	if (READ_REG(hqspi.Instance->SR) & QUADSPI_SR_BUSY)
+	{
+		return HAL_ERROR;
+	}
+	/*
+	 * General configuration register
+	 */
+	// reset the configuration register
+	hqspi.Instance->CR = 0x00;
+	// prescaler 1:25
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
+	// 1/2 sampling shift delay
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
+
+	/*
+	 * Ext memory parametre register
+	 */
+	// configuring flash size
+	hqspi.Instance->DCR = 0x00;
+	// 64MB = 2^(FSISE+1)
+	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_FSIZE, ((uint8_t)25) << QUADSPI_DCR_FSIZE_Pos);
+	// clk high when idle
+	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CKMODE, QUADSPI_DCR_CKMODE);
+
+
+
+	// enable the QSPI
+	SET_BIT(hqspi.Instance->CR, QUADSPI_CR_EN);
+
+	return retVal;
+}
 
 /*
  * Configure the QSPI in indirect write mode
@@ -810,7 +845,7 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_
 	sCommand.AlternateBytes =QSPI_ALTERNATE_BYTES_NONE;
 	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD;
+	sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD;
 	sCommand.Instruction = WRITE_PAGE_CMD;
 
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
@@ -838,6 +873,7 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_
 		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
+		MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
 
 
 		/* Transmission of the data */
@@ -894,7 +930,9 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	sCommand.Instruction = READ_4_BYTE_ADDR_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
 
+//	sCommand.DataMode = QSPI_DATA_NONE;
 	sCommand.DataMode = QSPI_DATA_1_LINE;
+
 	sCommand.NbData = buffer_size;
 	sCommand.Address = address;
 	//sCommand.DummyCycles = 6;
