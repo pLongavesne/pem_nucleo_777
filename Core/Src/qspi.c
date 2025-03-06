@@ -25,7 +25,14 @@ extern QSPI_HandleTypeDef hqspi;
 
 
 
+uint8_t qspi_set_latency()
+{
+	uint8_t retVal = HAL_OK;
 
+
+
+	return retVal;
+}
 
 /*
  * Read the bank register
@@ -932,6 +939,8 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD; // do not send the instruction on every transaction
 	sCommand.Instruction = READ_4_BYTE_ADDR_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
+
+	sCommand.DummyCycles = 0;		// no dummy cycles
 
 //	sCommand.DataMode = QSPI_DATA_NONE;
 	sCommand.DataMode = QSPI_DATA_1_LINE;

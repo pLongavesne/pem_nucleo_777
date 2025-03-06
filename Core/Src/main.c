@@ -86,7 +86,8 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_QUADSPI_Init(void);
 /* USER CODE BEGIN PFP */
 #define BUFFER_SIZE MEMORY_PAGE_SIZE
-
+//#define ADDR_CHAMBER_FIRMWARE		0x00080000
+#define ADDR_CHAMBER_FIRMWARE		0x00000000
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -134,47 +135,61 @@ int main(void)
 
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
-//	qspi_config();
-//	uint8_t buffer[BUFFER_SIZE];
-//	uint8_t buffer2[BUFFER_SIZE];
-//	uint8_t SR1Reg = 0xFF;
-//	const char *str = "Hi from qspi!!";
-//
-//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-//	//HAL_Delay(10);
-//	CSP_QSPI_EraseSector(0x00000000, MEMORY_SECTOR_SIZE);
-//	CSP_QSPI_ReadMemory(buffer, 0x00000000, BUFFER_SIZE);
-//	memset(buffer,0x01, BUFFER_SIZE);
-//	memmove(buffer, str, strlen(str));
-//	memset(buffer2, 0x00, BUFFER_SIZE);
-////	qspi_command_RDSR1(&SR1Reg);
-//	CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
-////	qspi_command_RDSR1(&SR1Reg);
-//	CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
-////	qspi_command_RDSR1(&SR1Reg);
-//	CSP_QSPI_ReadMemory(buffer2, 0x00000000+BUFFER_SIZE, BUFFER_SIZE);
-////	qspi_command_RDSR1(&SR1Reg);
-//	while(1);
+	qspi_config();
+	uint8_t buffer[BUFFER_SIZE];
+	uint8_t buffer2[BUFFER_SIZE];
+	uint8_t SR1Reg = 0xFF;
+	uint8_t CRReg = 0xFF;
+	//	const char *str = "Hi from qspi!!";
+	//
+	//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
+	//	//HAL_Delay(10);
+	//	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
+	//	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
+	//	memset(buffer,0x01, BUFFER_SIZE);
+	//	memmove(buffer, str, strlen(str));
+	//	memset(buffer2, 0x00, BUFFER_SIZE);
+	//	qspi_command_RDSR1(&SR1Reg);
+	//	CSP_QSPI_WriteMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
+	//	qspi_command_RDSR1(&SR1Reg);
+	//	CSP_QSPI_ReadMemory(buffer2, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
+	//	qspi_command_RDSR1(&SR1Reg);
+	//	CSP_QSPI_ReadMemory(buffer2, ADDR_CHAMBER_FIRMWARE+BUFFER_SIZE, BUFFER_SIZE);
+	//	qspi_command_RDSR1(&SR1Reg);
+	//	while(1);
 
 
 
 	qspi_config();
-	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	uint8_t SR1Reg = 0xFF;
-	uint8_t buffer[BUFFER_SIZE];
-	uint8_t buffer2[BUFFER_SIZE];
+	//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
+	//	uint8_t SR1Reg = 0xFF;
+	//	uint8_t buffer[BUFFER_SIZE];
+	//	uint8_t buffer2[BUFFER_SIZE];
 	int addresseOffset = 0;
 	int dataSize = strlen(strLipsum);
 	uint8_t retVal = HAL_OK;
-
+	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
+	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
 	// ecriture de plusieurs buffer a partir de l'adresse 0
 	for (int i=0; i<dataSize; i+=BUFFER_SIZE)
 	{
 		memset(buffer,0x00, BUFFER_SIZE);
 		memmove(buffer, strLipsum+addresseOffset, BUFFER_SIZE);
-		CSP_QSPI_WriteMemory(buffer, (0x00000000+addresseOffset), BUFFER_SIZE);
+		CSP_QSPI_WriteMemory(buffer, (ADDR_CHAMBER_FIRMWARE+addresseOffset), BUFFER_SIZE);
 		addresseOffset += BUFFER_SIZE;
 	}
+
+	uint8_t reg[2] =  {0x00};
+	qspi_command_RDCR(&CRReg);
+
+	qspi_command_WREN();
+	reg[0] = 0x00;
+	reg[1] = 0x00;
+	qspi_command_WRR(reg);
+
+	qspi_command_RDCR(&CRReg);
+
+
 
 	// lecture de plussieurs buffer a partir de l'adresse 0
 	uint8_t *bufferFullRead = (uint8_t*)malloc(dataSize);
@@ -183,7 +198,7 @@ int main(void)
 	{
 		memset(buffer2,0x00, BUFFER_SIZE);
 		qspi_command_RDSR1(&SR1Reg);
-		retVal = CSP_QSPI_ReadMemory(buffer2, (0x00000000+addresseOffset), BUFFER_SIZE);
+		retVal = CSP_QSPI_ReadMemory(buffer2, (ADDR_CHAMBER_FIRMWARE+addresseOffset), BUFFER_SIZE);
 		memmove((bufferFullRead+addresseOffset), buffer2, BUFFER_SIZE);
 		addresseOffset += BUFFER_SIZE;
 
