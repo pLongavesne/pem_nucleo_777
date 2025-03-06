@@ -414,7 +414,7 @@ int main(void)
  8000568:	f44f 5100 	mov.w	r1, #8192	@ 0x2000
  800056c:	481e      	ldr	r0, [pc, #120]	@ (80005e8 <main+0xb0>)
  800056e:	f001 fe5d 	bl	800222c <HAL_GPIO_WritePin>
-	//		HAL_Delay(10);
+	//HAL_Delay(10);
 	CSP_QSPI_EraseSector(0x00000000, MEMORY_SECTOR_SIZE);
  8000572:	f44f 2180 	mov.w	r1, #262144	@ 0x40000
  8000576:	2000      	movs	r0, #0
@@ -1292,13 +1292,13 @@ uint8_t qspi_config()
  8000aa6:	f042 52c8 	orr.w	r2, r2, #419430400	@ 0x19000000
  8000aaa:	601a      	str	r2, [r3, #0]
 	// 1/2 sampling shift delay
-	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_HALFCYCLE);
  8000aac:	4b16      	ldr	r3, [pc, #88]	@ (8000b08 <qspi_config+0xa4>)
  8000aae:	681b      	ldr	r3, [r3, #0]
  8000ab0:	681a      	ldr	r2, [r3, #0]
  8000ab2:	4b15      	ldr	r3, [pc, #84]	@ (8000b08 <qspi_config+0xa4>)
  8000ab4:	681b      	ldr	r3, [r3, #0]
- 8000ab6:	f022 0210 	bic.w	r2, r2, #16
+ 8000ab6:	f042 0210 	orr.w	r2, r2, #16
  8000aba:	601a      	str	r2, [r3, #0]
 
 	/*

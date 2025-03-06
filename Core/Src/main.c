@@ -140,7 +140,7 @@ int main(void)
 	const char *str = "Hi from qspi!!";
 
 	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	//		HAL_Delay(10);
+	//HAL_Delay(10);
 	CSP_QSPI_EraseSector(0x00000000, MEMORY_SECTOR_SIZE);
 	CSP_QSPI_ReadMemory(buffer, 0x00000000, BUFFER_SIZE);
 	memset(buffer,0x01, BUFFER_SIZE);

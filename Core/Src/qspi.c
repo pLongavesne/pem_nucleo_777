@@ -87,7 +87,8 @@ uint8_t qspi_config()
 	// prescaler 1:25
 	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
 	// 1/2 sampling shift delay
-	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
+	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_HALFCYCLE);
+	//MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
 
 	/*
 	 * Ext memory parametre register
