@@ -86,8 +86,8 @@ static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_QUADSPI_Init(void);
 /* USER CODE BEGIN PFP */
 #define BUFFER_SIZE MEMORY_PAGE_SIZE
-//#define ADDR_CHAMBER_FIRMWARE		0x00080000
-#define ADDR_CHAMBER_FIRMWARE		0x00000000
+#define ADDR_CHAMBER_FIRMWARE		0x00080000
+//#define ADDR_CHAMBER_FIRMWARE		0x00000000
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -197,7 +197,7 @@ int main(void)
 	for (int i=0; i<dataSize; i+=512)
 	{
 		memset(buffer2,0x00, BUFFER_SIZE);
-		qspi_command_RDSR1(&SR1Reg);
+		//qspi_command_RDSR1(&SR1Reg);
 		retVal = CSP_QSPI_ReadMemory(buffer2, (ADDR_CHAMBER_FIRMWARE+addresseOffset), BUFFER_SIZE);
 		memmove((bufferFullRead+addresseOffset), buffer2, BUFFER_SIZE);
 		addresseOffset += BUFFER_SIZE;

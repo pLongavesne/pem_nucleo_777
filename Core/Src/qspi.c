@@ -936,7 +936,8 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	sCommand.AlternateBytes =QSPI_ALTERNATE_BYTES_NONE;
 	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
-	sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD; // do not send the instruction on every transaction
+	//sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD; // do not send the instruction on every transaction
+	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD; // do not send the instruction on every transaction
 	sCommand.Instruction = READ_4_BYTE_ADDR_CMD;
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
 
