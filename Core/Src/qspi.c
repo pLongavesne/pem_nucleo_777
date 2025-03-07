@@ -857,11 +857,11 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_
 	sCommand.DdrMode = QSPI_DDR_MODE_DISABLE;
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
 	sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD;
-	sCommand.Instruction = WRITE_PAGE_CMD;
+	sCommand.Instruction = QUAD_IN_FAST_PROG_CMD;
 
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
 
-	sCommand.DataMode = QSPI_DATA_1_LINE;
+	sCommand.DataMode = QSPI_DATA_4_LINES;		//ICI PASSE EN 4L
 	sCommand.NbData = buffer_size;
 	sCommand.Address = address;
 	sCommand.DummyCycles = 0;
@@ -939,13 +939,13 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 	sCommand.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY;
 	//sCommand.SIOOMode = QSPI_SIOO_INST_ONLY_FIRST_CMD; // do not send the instruction on every transaction
 	sCommand.SIOOMode = QSPI_SIOO_INST_EVERY_CMD; // do not send the instruction on every transaction
-	sCommand.Instruction = READ_4_BYTE_ADDR_CMD;
+	sCommand.Instruction = QUAD_OUT_FAST_READ_4_BYTE_ADDR_CMD; //ICI passé en 4L
 	sCommand.AddressMode = QSPI_ADDRESS_1_LINE;
 
-	sCommand.DummyCycles = 0;		// no dummy cycles
+	sCommand.DummyCycles = 8;		// ICI AJOUT de DUMMY
 
 //	sCommand.DataMode = QSPI_DATA_NONE;
-	sCommand.DataMode = QSPI_DATA_1_LINE;
+	sCommand.DataMode = QSPI_DATA_4_LINES;		// ICI PASSE EN 4L
 
 	sCommand.NbData = buffer_size;
 	sCommand.Address = address;

@@ -136,7 +136,7 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	qspi_config();
-	uint8_t buffer[MEMORY_SECTOR_SIZE];
+	uint8_t buffer[BUFFER_SIZE];
 	uint8_t buffer2[BUFFER_SIZE];
 	uint8_t SR1Reg = 0xFF;
 	uint8_t CRReg = 0xFF;
@@ -161,6 +161,17 @@ int main(void)
 
 
 	qspi_config();
+
+	uint8_t reg[2] =  {0x00};
+	qspi_command_RDCR(&CRReg);
+
+	qspi_command_WREN();
+	reg[0] = 0x00;	//status reg
+	reg[1] = 0x02;	//control reg
+	qspi_command_WRR(reg);
+
+	qspi_command_RDCR(&CRReg);
+
 	//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
 	//	uint8_t SR1Reg = 0xFF;
 	//	uint8_t buffer[BUFFER_SIZE];
@@ -171,7 +182,7 @@ int main(void)
 	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
 
 
-	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, MEMORY_SECTOR_SIZE);
+	//CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
 
 	int toWrite = dataSize;
 	// ecriture de plusieurs buffer a partir de l'adresse 0
@@ -192,15 +203,6 @@ int main(void)
 		toWrite = dataSize - addresseOffset;
 	}
 
-	uint8_t reg[2] =  {0x00};
-	qspi_command_RDCR(&CRReg);
-
-	qspi_command_WREN();
-	reg[0] = 0x00;
-	reg[1] = 0x00;
-	qspi_command_WRR(reg);
-
-	qspi_command_RDCR(&CRReg);
 
 
 
