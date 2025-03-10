@@ -92,7 +92,7 @@ uint8_t qspi_config()
 	// reset the configuration register
 	hqspi.Instance->CR = 0x00;
 	// prescaler 1:25
-//	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
+	//	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)25) << QUADSPI_CR_PRESCALER_Pos));
 	MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_PRESCALER, (((uint8_t)1) << QUADSPI_CR_PRESCALER_Pos));	//Test 1:1
 	// 1/2 sampling shift delay
 	//MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_HALFCYCLE);
@@ -886,11 +886,15 @@ uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_
 		}
 		MODIFY_REG(hqspi.Instance->CR, QUADSPI_CR_SSHIFT, QSPI_SAMPLE_SHIFTING_NONE);
 
-
-		/* Transmission of the data */
-		if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		// TEST DMA
+		if (HAL_QSPI_Transmit_DMA(&hqspi, buffer) != HAL_OK) {
 			return HAL_ERROR;
 		}
+
+		/* Transmission of the data */
+		//		if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		//			return HAL_ERROR;
+		//		}
 
 		/* Configure automatic polling mode to wait for end of program */
 		if (QSPI_AutoPollingMemReady() != HAL_OK) {
@@ -944,7 +948,7 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 
 	sCommand.DummyCycles = 8;		// ICI AJOUT de DUMMY
 
-//	sCommand.DataMode = QSPI_DATA_NONE;
+	//	sCommand.DataMode = QSPI_DATA_NONE;
 	sCommand.DataMode = QSPI_DATA_4_LINES;		// ICI PASSE EN 4L
 
 	sCommand.NbData = buffer_size;
@@ -967,10 +971,15 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 
 		//while (HAL_QSPI_GetState (&hqspi)!=HAL_QSPI_STATE_READY); //debug
 
-		/* Transmission of the data */
-		if (HAL_QSPI_Receive(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Receive_DMA(&hqspi, buffer) != HAL_OK)
+		{
 			return HAL_ERROR;
 		}
+
+		/* Transmission of the data */
+		//		if (HAL_QSPI_Receive(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		//			return HAL_ERROR;
+		//		}
 
 
 		/* Update the address and size variables for next page programming */
