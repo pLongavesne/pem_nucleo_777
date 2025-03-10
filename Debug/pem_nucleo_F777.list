@@ -31,25 +31,25 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  13 .ARM.attributes 0000002e  00000000  00000000  0000819c  2**0
                   CONTENTS, READONLY
- 14 .debug_info   00014f38  00000000  00000000  000081ca  2**0
+ 14 .debug_info   00014f33  00000000  00000000  000081ca  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_abbrev 00002c3a  00000000  00000000  0001d102  2**0
+ 15 .debug_abbrev 00002c3b  00000000  00000000  0001d0fd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_aranges 00000fb0  00000000  00000000  0001fd40  2**3
+ 16 .debug_aranges 00000fb0  00000000  00000000  0001fd38  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_rnglists 00000c1a  00000000  00000000  00020cf0  2**0
+ 17 .debug_rnglists 00000c1a  00000000  00000000  00020ce8  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_macro  00029719  00000000  00000000  0002190a  2**0
+ 18 .debug_macro  00029719  00000000  00000000  00021902  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_line   00013cb7  00000000  00000000  0004b023  2**0
+ 19 .debug_line   00013caa  00000000  00000000  0004b01b  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_str    000fcb6c  00000000  00000000  0005ecda  2**0
+ 20 .debug_str    000fcb6c  00000000  00000000  0005ecc5  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .comment      00000043  00000000  00000000  0015b846  2**0
+ 21 .comment      00000043  00000000  00000000  0015b831  2**0
                   CONTENTS, READONLY
- 22 .debug_frame  00004518  00000000  00000000  0015b88c  2**2
+ 22 .debug_frame  00004518  00000000  00000000  0015b874  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 23 .debug_line_str 00000071  00000000  00000000  0015fda4  2**0
+ 23 .debug_line_str 00000071  00000000  00000000  0015fd8c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -403,7 +403,7 @@ int main(void)
  8000556:	607b      	str	r3, [r7, #4]
 
 	// erasing the both sector containing the chamber firmware
-	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT+MEMORY_SECTOR_SIZE);
+	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT);
  8000558:	f44f 2140 	mov.w	r1, #786432	@ 0xc0000
  800055c:	f44f 2000 	mov.w	r0, #524288	@ 0x80000
  8000560:	f000 fc9c 	bl	8000e9c <CSP_QSPI_EraseSector>
@@ -850,8 +850,8 @@ static void MX_QUADSPI_Init(void)
 	{
 		Error_Handler();
  80007fe:	f000 f971 	bl	8000ae4 <Error_Handler>
-	}*/
-
+	}
+	/* USER CODE BEGIN QUADSPI_Init 2 */
 
 	/* USER CODE END QUADSPI_Init 2 */
 
@@ -1444,7 +1444,6 @@ uint8_t qspi_config()
  8000b6c:	681b      	ldr	r3, [r3, #0]
  8000b6e:	f042 0201 	orr.w	r2, r2, #1
  8000b72:	605a      	str	r2, [r3, #4]
-
 
 
 	// enable the QSPI

@@ -109,7 +109,6 @@ uint8_t qspi_config()
 	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_CKMODE, QUADSPI_DCR_CKMODE);
 
 
-
 	// enable the QSPI
 	SET_BIT(hqspi.Instance->CR, QUADSPI_CR_EN);
 
@@ -149,17 +148,6 @@ uint8_t config_qspi_indirect_write_1L()
 	hqspi.Instance->DCR = 0x00;
 	// 64MB = 2^(FSISE+1)
 	MODIFY_REG(hqspi.Instance->DCR, QUADSPI_DCR_FSIZE, ((uint8_t)25) << QUADSPI_DCR_FSIZE_Pos);
-
-	/*
-	 * Communication register
-	 */
-	hqspi.Instance->CCR = 0x00;
-	// configuring data on 1 line
-	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_DMODE, QSPI_DATA_1_LINE);
-	// configuring addresse on 4 Bytes
-	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_ADSIZE, QSPI_ADDRESS_32_BITS);
-	// configuring instruction on 1 line
-	MODIFY_REG(hqspi.Instance->CCR, QUADSPI_CCR_IMODE, QSPI_INSTRUCTION_1_LINE);
 
 	// enable the QSPI
 	SET_BIT(hqspi.Instance->CR, QUADSPI_CR_EN);

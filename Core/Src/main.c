@@ -151,7 +151,7 @@ int main(void)
 	int dataSize = strlen(strLipsum);
 
 	// erasing the both sector containing the chamber firmware
-	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT+MEMORY_SECTOR_SIZE);
+	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT);
 	// writing in the first sector of the chamber firmware
 	CSP_QSPI_WriteMemory((uint8_t*)strLipsum, ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, dataSize);
 	//enable mem mapped mode to verify the correct writing
@@ -330,16 +330,6 @@ static void MX_QUADSPI_Init(void)
 		Error_Handler();
 	}
 	/* USER CODE BEGIN QUADSPI_Init 2 */
-	/*if (qspi_init() != HAL_OK)
-	{
-		Error_Handler();
-	}*/
-
-	/*if (rad_qspi_flash_enable_mem_map_mode(SPI_4IO_MODE) != HAL_OK)
-	{
-		Error_Handler();
-	}*/
-
 
 	/* USER CODE END QUADSPI_Init 2 */
 
