@@ -22,6 +22,7 @@
 #include "stm32f7xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -55,9 +56,12 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_quadspi;
 extern QSPI_HandleTypeDef hqspi;
 /* USER CODE BEGIN EV */
-
+extern uint8_t buffer2[512];
+extern uint8_t *bufferFullRead;
+extern uint32_t bufferFullReadInd;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -218,6 +222,30 @@ void EXTI1_IRQHandler(void)
   /* USER CODE BEGIN EXTI1_IRQn 1 */
 
   /* USER CODE END EXTI1_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA2 stream2 global interrupt.
+  */
+void DMA2_Stream2_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream2_IRQn 0 */
+
+	if (hqspi.hdma->Init.Direction == DMA_MEMORY_TO_PERIPH) // writing to ext flash
+	{
+
+	}
+	else if (hqspi.hdma->Init.Direction == DMA_PERIPH_TO_MEMORY) // reading from ext flash
+	{
+		memmove((bufferFullRead+bufferFullReadInd), buffer2, 512);
+		memset(buffer2, 0x00, 512);
+		bufferFullReadInd+=512;
+	}
+  /* USER CODE END DMA2_Stream2_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_quadspi);
+  /* USER CODE BEGIN DMA2_Stream2_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream2_IRQn 1 */
 }
 
 /**

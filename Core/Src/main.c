@@ -68,6 +68,7 @@ ETH_TxPacketConfig TxConfig;
 ETH_HandleTypeDef heth;
 
 QSPI_HandleTypeDef hqspi;
+DMA_HandleTypeDef hdma_quadspi;
 
 UART_HandleTypeDef huart3;
 
@@ -80,19 +81,27 @@ PCD_HandleTypeDef hpcd_USB_OTG_FS;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ETH_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_USB_OTG_FS_PCD_Init(void);
 static void MX_QUADSPI_Init(void);
 /* USER CODE BEGIN PFP */
 #define BUFFER_SIZE MEMORY_PAGE_SIZE
-#define ADDR_CHAMBER_FIRMWARE		0x00080000
+#define ADDR_EXT_FLASH								0x90000000
+#define ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT		0x00080000
+#define ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT		0x000C0000
+#define ADDR_CHAMBER_FIRMWARE_SECTOR_1_MAPPED		(ADDR_EXT_FLASH + ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT)
+#define ADDR_CHAMBER_FIRMWARE_SECTOR_2_MAPPED		(ADDR_EXT_FLASH + ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT)
 //#define ADDR_CHAMBER_FIRMWARE		0x00000000
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+uint8_t buffer2[512];
+uint8_t *bufferFullRead;
+uint32_t bufferFullReadInd;
+uint8_t cpyBufferFlg;
 /* USER CODE END 0 */
 
 /**
@@ -124,6 +133,7 @@ int main(void)
 
 	/* Initialize all configured peripherals */
 	MX_GPIO_Init();
+	MX_DMA_Init();
 	MX_ETH_Init();
 	MX_USART3_UART_Init();
 	MX_USB_OTG_FS_PCD_Init();
@@ -136,124 +146,60 @@ int main(void)
 	/* Infinite loop */
 	/* USER CODE BEGIN WHILE */
 	qspi_config();
-	uint8_t buffer[BUFFER_SIZE];
-	uint8_t buffer2[BUFFER_SIZE];
-	uint8_t SR1Reg = 0xFF;
-	uint8_t CRReg = 0xFF;
-	//	const char *str = "Hi from qspi!!";
-	//
-	//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	//	//HAL_Delay(10);
-	//	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
-	//	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
-	//	memset(buffer,0x01, BUFFER_SIZE);
-	//	memmove(buffer, str, strlen(str));
-	//	memset(buffer2, 0x00, BUFFER_SIZE);
-	//	qspi_command_RDSR1(&SR1Reg);
-	//	CSP_QSPI_WriteMemory(buffer, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
-	//	qspi_command_RDSR1(&SR1Reg);
-	//	CSP_QSPI_ReadMemory(buffer2, ADDR_CHAMBER_FIRMWARE, BUFFER_SIZE);
-	//	qspi_command_RDSR1(&SR1Reg);
-	//	CSP_QSPI_ReadMemory(buffer2, ADDR_CHAMBER_FIRMWARE+BUFFER_SIZE, BUFFER_SIZE);
-	//	qspi_command_RDSR1(&SR1Reg);
-	//	while(1);
 
 
-
-	qspi_config();
-	//	HAL_GPIO_WritePin(QSPI_RES_F13_GPIO_Port, QSPI_RES_F13_Pin, GPIO_SPEED_HIGH);
-	//	uint8_t SR1Reg = 0xFF;
-	//	uint8_t buffer[BUFFER_SIZE];
-	//	uint8_t buffer2[BUFFER_SIZE];
-	int addresseOffset = 0;
 	int dataSize = strlen(strLipsum);
-	uint8_t retVal = HAL_OK;
-	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE, ADDR_CHAMBER_FIRMWARE+MEMORY_SECTOR_SIZE);
 
-
-
-//	CSP_QSPI_ReadMemory(buffer, ADDR_CHAMBER_FIRMWARE, MEMORY_SECTOR_SIZE);
-
-	int toWrite = dataSize;
-	// ecriture de plusieurs buffer a partir de l'adresse 0
-	for (int i=0; i<dataSize; i+=BUFFER_SIZE)
-	{
-		if (toWrite > BUFFER_SIZE)
-		{
-			toWrite = BUFFER_SIZE;
-		}
-		else
-		{
-			toWrite %= BUFFER_SIZE;
-		}
-		memset(buffer,0x00, BUFFER_SIZE);
-		memmove(buffer, strLipsum+addresseOffset, toWrite);
-		CSP_QSPI_WriteMemory(buffer, (ADDR_CHAMBER_FIRMWARE+addresseOffset), toWrite);
-		addresseOffset += toWrite;
-		toWrite = dataSize - addresseOffset;
-	}
-
-	uint8_t reg[2] =  {0x00};
-	qspi_command_RDCR(&CRReg);
-
-	qspi_command_WREN();
-	reg[0] = 0x00;
-	reg[1] = 0x00;
-	qspi_command_WRR(reg);
-
-	qspi_command_RDCR(&CRReg);
-
-
-
-	// lecture de plusieurs buffer a partir de l'adresse 0
-	uint8_t *bufferFullRead = (uint8_t*)malloc(dataSize);
-	addresseOffset = 0;
-	for (int i=0; i<dataSize; i+=512)
-	{
-		memset(buffer2,0x00, BUFFER_SIZE);
-		//qspi_command_RDSR1(&SR1Reg);
-		retVal = CSP_QSPI_ReadMemory(buffer2, (ADDR_CHAMBER_FIRMWARE+addresseOffset), BUFFER_SIZE);
-		memmove((bufferFullRead+addresseOffset), buffer2, BUFFER_SIZE);
-		addresseOffset += BUFFER_SIZE;
-
-	}
-
-	int lenStrRead = strlen(bufferFullRead);
-
-	qspi_command_RDSR1(&SR1Reg);
-	qspi_command_RDCR(&CRReg);
-
-
-	//CSP_QSPI_WriteMemory(buffer, 0x00000000, BUFFER_SIZE);
-	//CSP_QSPI_ReadMemory(buffer2, 0x00000000, BUFFER_SIZE);
-
-
-	qspi_command_WREN();
-	reg[0] = 0x00;
-	reg[1] = 0x00;	//enable quad mode
-	qspi_command_WRR(reg);
-
+	// erasing the both sector containing the chamber firmware
+	CSP_QSPI_EraseSector(ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT+MEMORY_SECTOR_SIZE);
+	// writing in the first sector of the chamber firmware
+	CSP_QSPI_WriteMemory((uint8_t*)strLipsum, ADDR_CHAMBER_FIRMWARE_SECTOR_1_INDIRECT, dataSize);
+	//enable mem mapped mode to verify the correct writing
 	rad_qspi_flash_enable_mem_map_mode(SPI_MODE);
-
-
-	memset(buffer, 0x00, BUFFER_SIZE);
-	uint8_t *ptExtMem = (uint8_t*)0x90080000;
-	for (int i=0; i<BUFFER_SIZE; i++)
+	// writing all the data that was writing in the ext flash to verify
+	bufferFullRead = (uint8_t*)malloc(dataSize);
+	memset(bufferFullRead, 0x00, dataSize);
+	uint8_t *ptFlash = (uint8_t*)ADDR_CHAMBER_FIRMWARE_SECTOR_1_MAPPED;
+	for (int i=0; i<dataSize; i++)
 	{
-		*(buffer+i) = *(ptExtMem+i);
+		*(bufferFullRead+i) = *(ptFlash+i);
 	}
-	while (1)
+
+	HAL_Delay(1);
+	//doing the same test in the second sector
+
+	HAL_QSPI_DeInit(&hqspi);
+	MX_QUADSPI_Init();
+	qspi_config();
+
+
+
+
+	CSP_QSPI_WriteMemory((uint8_t*)strLipsum, ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT, dataSize);
+	//enable mem mapped mode to verify the correct writing
+	rad_qspi_flash_enable_mem_map_mode(SPI_MODE);
+	// writing all the data that was writing in the ext flash to verify
+	bufferFullRead = (uint8_t*)malloc(dataSize);
+	memset(bufferFullRead, 0x00, dataSize);
+	ptFlash = (uint8_t*)ADDR_CHAMBER_FIRMWARE_SECTOR_2_MAPPED;
+	for (int i=0; i<dataSize; i++)
+	{
+		*(bufferFullRead+i) = *(ptFlash+i);
+	}
+
+
+	while(1)
 	{
 
-		HAL_Delay(1000);
-
-
-		/* USER CODE END WHILE */
-
-		/* USER CODE BEGIN 3 */
 	}
-	/* USER CODE END 3 */
+
+
+	/* USER CODE END WHILE */
+
+	/* USER CODE BEGIN 3 */
 }
+/* USER CODE END 3 */
+
 
 /**
  * @brief System Clock Configuration
@@ -473,6 +419,22 @@ static void MX_USB_OTG_FS_PCD_Init(void)
 }
 
 /**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+
+	/* DMA controller clock enable */
+	__HAL_RCC_DMA2_CLK_ENABLE();
+
+	/* DMA interrupt init */
+	/* DMA2_Stream2_IRQn interrupt configuration */
+	HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
+	HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
+
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -590,4 +552,3 @@ void assert_failed(uint8_t *file, uint32_t line)
 	/* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
