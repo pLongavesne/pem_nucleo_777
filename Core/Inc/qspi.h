@@ -56,13 +56,14 @@ uint8_t qspi_command_RDCR(uint8_t *reg);
 uint8_t qspi_command_BRRD(uint8_t *reg);
 uint8_t qspi_command_BRWR(uint8_t *reg);
 uint8_t qspi_command_WREN();
-uint8_t qspi_command_WRR(uint8_t *data);
+unsigned int qspi_command_WRR(uint8_t *data);
 uint8_t qspi_command_read_1L(uint8_t *data, uint32_t addr, uint32_t szt);
 
 uint8_t CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
 uint8_t CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size);
 uint8_t CSP_QSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress);
 uint8_t QSPI_WriteEnable(void);
+uint8_t QSPI_AutoPollingMemReady(void);
 
 /* USER CODE END Private defines */
 

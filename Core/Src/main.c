@@ -148,6 +148,15 @@ int main(void)
 	qspi_config();
 
 
+	uint8_t regs[2] = {0x00};
+	rad_qspi_flash_read_status_reg(&regs[0]);
+	rad_qspi_flash_read_control_reg(&regs[1]);
+	regs[0] = 0x00;		//status reg
+	regs[1] = 0x00;		//control reg
+	qspi_command_WRR(regs);
+	rad_qspi_flash_read_status_reg(&regs[0]);
+	rad_qspi_flash_read_control_reg(&regs[1]);
+
 	int dataSize = strlen(strLipsum);
 
 	// erasing the both sector containing the chamber firmware
