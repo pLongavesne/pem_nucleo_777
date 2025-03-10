@@ -590,11 +590,12 @@ unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode)
 		s_command.Instruction     = FAST_READ_4_BYTE_ADDR_CMD;
 		s_command.AddressMode     = QSPI_ADDRESS_1_LINE;
 		s_command.DataMode        = QSPI_DATA_1_LINE;
-		s_command.DummyCycles     = DUMMY_CYCLES_READ;
+		s_command.DummyCycles     = 2;
+		s_command.DummyCycles     = 8;
 		break;
 	}
 
-	s_command.DummyCycles        = 6;
+	//s_command.DummyCycles        = 6;
 	s_command.AlternateByteMode  = QSPI_ALTERNATE_BYTES_NONE;
 
 	s_command.AlternateBytesSize = QSPI_ALTERNATE_BYTES_NONE;
