@@ -168,13 +168,10 @@ int main(void)
 	HAL_Delay(1);
 	//doing the same test in the second sector
 
-	HAL_QSPI_DeInit(&hqspi);
-	MX_QUADSPI_Init();
-	qspi_config();
+	// return in indirect mode
+	rad_qspi_disable_mem_map_mode();
 
-
-
-
+	// writing in the second sector of the chamber firmware
 	CSP_QSPI_WriteMemory((uint8_t*)strLipsum, ADDR_CHAMBER_FIRMWARE_SECTOR_2_INDIRECT, dataSize);
 	//enable mem mapped mode to verify the correct writing
 	rad_qspi_flash_enable_mem_map_mode(SPI_MODE);

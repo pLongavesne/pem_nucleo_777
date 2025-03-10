@@ -545,6 +545,15 @@ unsigned char  rad_qspi_flash_init(void)
 	return HAL_OK;
 }
 
+unsigned int rad_qspi_disable_mem_map_mode()
+{
+	uint8_t retVal = HAL_OK;
+	// return in indirect mode
+	retVal = HAL_QSPI_Abort(&hqspi);
+	qspi_config();
+	return retVal;
+}
+
 unsigned int  rad_qspi_flash_enable_mem_map_mode (unsigned int Mode)
 {
 	QSPI_CommandTypeDef      s_command  = {};
