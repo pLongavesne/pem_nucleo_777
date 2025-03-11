@@ -1,0 +1,13 @@
+../Core/Src/qspi.c:30:9:qspi_command_BRRD	24	static
+../Core/Src/qspi.c:54:9:qspi_command_BRWR	24	static
+../Core/Src/qspi.c:71:9:qspi_config	16	static
+../Core/Src/qspi.c:114:14:qspi_command_WRR	72	static
+../Core/Src/qspi.c:149:9:QSPI_AutoPollingMemReady	88	static
+../Core/Src/qspi.c:178:14:rad_qspi_disable_mem_map_mode	16	static
+../Core/Src/qspi.c:187:15:rad_qspi_flash_enable_mem_map_mode	80	static
+../Core/Src/qspi.c:260:14:rad_qspi_flash_read_status_reg	72	static
+../Core/Src/qspi.c:286:14:rad_qspi_flash_read_control_reg	72	static
+../Core/Src/qspi.c:314:9:CSP_QSPI_WriteMemory_4L	96	static
+../Core/Src/qspi.c:399:9:CSP_QSPI_WriteMemory	96	static
+../Core/Src/qspi.c:484:9:CSP_QSPI_EraseSector	72	static
+../Core/Src/qspi.c:524:9:QSPI_WriteEnable	88	static
