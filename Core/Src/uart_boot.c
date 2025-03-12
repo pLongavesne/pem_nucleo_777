@@ -80,6 +80,7 @@ void upd_151_uart_irq()
 	if(huart3.Instance->ISR & USART_ISR_RXNE)
 	{
 		uint8_t b = huart3.Instance->RDR;
+
 		switch (rxCtx.command)
 		{
 		case COMMAND_FIRST_ACK:
@@ -122,20 +123,14 @@ void upd_151_uart_irq()
 			}
 			case FSM_RX_RECEIVE:
 			{
-				if (rxCtx.rxCount > 1)
-				{
-					*rxCtx.ptBuff = b;
-					rxCtx.ptBuff++;
-					rxCtx.rxCount--;
-				}
-				else if(rxCtx.rxCount == 1)
+				*rxCtx.ptBuff = b;
+				rxCtx.ptBuff++;
+				rxCtx.rxCount--;
+				if (rxCtx.rxCount == 0)
 				{
 					rxCtx.state = FSM_RX_WAIT_ACK_STOP;
-					*rxCtx.ptBuff = b;
-					rxCtx.ptBuff++;
-					rxCtx.rxCount--;
-				}
 
+				}
 				break;
 			}
 			case FSM_RX_WAIT_ACK_STOP:
@@ -165,10 +160,79 @@ void upd_151_uart_irq()
 				while(1);
 				break;
 			}
+			default:
+			{
+				// error on a FSM state
+				while(1);
+				break;
+			}
+			}
+			break;
+		}
+		case COMMAND_GET_ID:
+		{
+			switch (rxCtx.state)
+			{
+			case FSM_RX_WAIT_ACK_START:
+			{
+				// this byte must be a ack
+				if (b != BOOT_ACK)
+				{
+					rxCtx.state = FSM_RX_ACK_ERR;
+				}
+				rxCtx.state = FSM_RX_RECEIVE_N;
+				*rxCtx.ptBuff = b;
+				rxCtx.ptBuff++;
+
+				break;
+			}
+			case FSM_RX_RECEIVE_N:
+			{
+				*rxCtx.ptBuff = b;
+				rxCtx.ptBuff++;
+				rxCtx.rxCount = b+1;
+				rxCtx.state = FSM_RX_RECEIVE;
+				break;
+			}
+			case FSM_RX_RECEIVE:
+			{
+				*rxCtx.ptBuff = b;
+				rxCtx.ptBuff++;
+				rxCtx.rxCount--;
+				if (rxCtx.rxCount == 0)
+				{
+					rxCtx.state = FSM_RX_WAIT_ACK_STOP;
+
+				}
+				break;
+			}
+			case FSM_RX_WAIT_ACK_STOP:
+			{
+				if (b != BOOT_ACK)
+				{
+					rxCtx.state = FSM_RX_ACK_ERR;
+				}
+				else
+				{
+					*rxCtx.ptBuff = b;
+					rxCtx.ptBuff++;
+					rxCtx.rxCount--;
+					huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq on RX
+					rxCtx.state = FSM_RX_IDLE;
+				}
+				break;
+			}
+			default:
+			{
+				// error on a FSM state
+				while(1);
+				break;
+			}
 
 			}
 			break;
 		}
+
 		default:
 		{
 			huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq
@@ -215,24 +279,33 @@ uint8_t upd_151_program()
 	//	upd_151_uart_tx(txBuffer, 1);
 	//	while(rxCtx.state != FSM_RX_IDLE)
 	//	{
-	//		//upd_151_uart_tx(txBuffer, 6);
 	//		HAL_Delay(100);
 	//	}
-	txBuffer[0] = 0x01;
-	txBuffer[1] = 0xfe;
+
+	// commande get version OK
+	//	txBuffer[0] = 0x01;
+	//	txBuffer[1] = 0xfe;
+	//	upd_151_uart_tx(txBuffer, 2);
+	//	upd_151_uart_rx(rxBuffer, 0, COMMAND_GET_VERSION);
+	//	while(rxCtx.state != FSM_RX_IDLE)
+	//	{
+	//		HAL_Delay(100);
+	//	}
+	memset(rxBuffer, 0x00, RX_BUFFER_SIZE);
+	// commande get ID OK
+	txBuffer[0] = 0x02;
+	txBuffer[1] = 0xfD;
 	upd_151_uart_tx(txBuffer, 2);
-	upd_151_uart_rx(rxBuffer, 0, COMMAND_GET_VERSION);
+	upd_151_uart_rx(rxBuffer, 0, COMMAND_GET_ID);
 	while(rxCtx.state != FSM_RX_IDLE)
 	{
-		//upd_151_uart_tx(txBuffer, 6);
 		HAL_Delay(100);
 	}
-	//	while(1)
-	//	{
-	//		upd_151_uart_tx(txBuffer, 1);
-	//
-	//		HAL_Delay(100);
-	//	}
+
+
+
+
+
 
 
 	upd_leave_bootloader_mode();

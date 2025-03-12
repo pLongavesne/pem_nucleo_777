@@ -1,6 +1,6 @@
 ../Core/Src/uart_boot.c:17:6:upd_enter_bootloader_mode	4	static
 ../Core/Src/uart_boot.c:42:6:upd_leave_bootloader_mode	4	static
 ../Core/Src/uart_boot.c:62:6:upd_151_uart_irq	16	static
-../Core/Src/uart_boot.c:183:6:upd_151_uart_tx	16	static
-../Core/Src/uart_boot.c:191:6:upd_151_uart_rx	24	static
-../Core/Src/uart_boot.c:200:9:upd_151_program	528	static
+../Core/Src/uart_boot.c:247:6:upd_151_uart_tx	16	static
+../Core/Src/uart_boot.c:255:6:upd_151_uart_rx	24	static
+../Core/Src/uart_boot.c:264:9:upd_151_program	528	static
