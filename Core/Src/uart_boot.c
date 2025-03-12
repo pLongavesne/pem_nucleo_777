@@ -17,10 +17,14 @@ extern UART_HandleTypeDef huart3;
 
 
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
-uint8_t upd_151_boot_read_memory(uint32_t addr, uint8_t nByte, uint8_t *readBuffer);
+uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuffer);
 uint8_t upd_wait_rx_idle_timeout();
-uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data);
+uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data);
 
+/*
+ * Reset the STM32l151 to enter in bootloader mode
+ * Configure the uart to work with the bootloader of the STM32l151 (8E1)
+ */
 void upd_enter_bootloader_mode()
 {
 	//	HAL_GPIO_WritePin(ION_EN_GPIO_Port, ION_EN_Pin, GPIO_PIN_RESET);
@@ -46,6 +50,10 @@ void upd_enter_bootloader_mode()
 	//	HAL_GPIO_WritePin(ION_RES_GPIO_Port, ION_RES_Pin, GPIO_PIN_SET);
 }
 
+/*
+ * Restore the original configuration of the UART (8N1)
+ * Reset the STM32l151 to boot in user code
+ */
 void upd_leave_bootloader_mode()
 {
 	//configure uart for communication with the chamber :
@@ -277,41 +285,16 @@ uint8_t upd_151_program()
 	//	}
 	//***************************************************************
 
-
-
-
-
-	for (int i=0; i<256; i++)
-	{
-		txBuffer[i] = i;
-	}
-	uint32_t addr = 0x00000000;
-	for (int i=0; i<10; i++)
-	{
-		retVal = upd_151_boot_write_memory(addr, 255, txBuffer);
-		if (retVal == HAL_ERROR)
-		{
-			return HAL_ERROR;
-		}
-		addr+=256;
-	}
-
-
-
-
-
-
-
-
-
 	upd_leave_bootloader_mode();
 
 
 	while(1);
 	return retVal;
 }
-
-uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data)
+/*
+ * Write maximum 256 bytes at addr
+ */
+uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data)
 {
 	uint8_t retVal = HAL_OK;
 	uint8_t txBuffer[TX_BUFFER_SIZE+1] = {0x00};
@@ -333,7 +316,6 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data)
 	{
 		return HAL_ERROR;
 	}
-
 
 	//********************** send the addresse to write **********************
 	uint32_t msk = 0xff000000;	// init the mask to parse the address
@@ -359,9 +341,9 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data)
 
 	// ********************** sending data to write	 **********************
 	memset(txBuffer, 0x00, TX_BUFFER_SIZE);
-	txBuffer[0] = nBytes;			// adding number of byte to write at the beginning of the buffer
+	txBuffer[0] = nBytes-1;			// adding number of byte to write at the beginning of the buffer
 	crc = txBuffer[0];				// init crc
-	for(int i=0; i<nBytes; i++)		// adding data to write in the buffer
+	for(int i=0; i<=nBytes; i++)		// adding data to write in the buffer
 	{
 		txBuffer[i+1] = data[i];
 		crc ^= data[i];
@@ -380,6 +362,10 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data)
 	return retVal;
 }
 
+/*
+ * Wait the RX to do idle
+ * Also check if there is not NACK error
+ */
 uint8_t upd_wait_rx_idle_timeout()
 {
 	uint32_t t = HAL_GetTick();
@@ -393,7 +379,10 @@ uint8_t upd_wait_rx_idle_timeout()
 	return HAL_OK;
 }
 
-uint8_t upd_151_boot_read_memory(uint32_t addr, uint8_t nByte, uint8_t *readBuffer)
+/*
+ * Read maximum 256 bytes from addr
+ */
+uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuffer)
 {
 	uint8_t retVal = HAL_OK;
 	uint8_t txBuffer[TX_BUFFER_SIZE] = {0x00};
@@ -461,6 +450,10 @@ uint8_t upd_151_boot_read_memory(uint32_t addr, uint8_t nByte, uint8_t *readBuff
 	return retVal;
 }
 
+/*
+ *	Erase N=nPage pages
+ *	pageNumbers specify the numerous of the pages to erase
+ */
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 {
 	uint8_t retVal = HAL_OK;

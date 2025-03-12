@@ -39,7 +39,7 @@ uint8_t upd_uart_151_mode = 0;
 
 typedef struct UPD_TX_s
 {
-	uint8_t state;                         // State (IDLE, BUSY, ERROR)
+	uint8_t state;                        	 // State (IDLE, BUSY)
 	uint32_t txCount;                         // count down the number of bytes to sent
 	uint8_t* ptData;
 }UPD_TX_t;
@@ -55,14 +55,15 @@ typedef struct CMD_s
 
 typedef struct UPD_RX_s
 {
-	uint8_t state;                         // fsm state
-	uint8_t stateInd;                         // fsm state
+	uint8_t state;                         	// fsm state
+	uint8_t stateInd;                       // fsm current state in the sequence for a specific commande
 	uint32_t rxCount;                       // count down the number of bytes to receive
 	uint8_t* ptBuff;
 	CMD_t *command;
 }UPD_RX_t;
 UPD_RX_t rxCtx;
 
+// sequences of step for the FSM  and communication with the bootloader
 const uint8_t COM_WAIT_ACK_SEQ[] = {
 		FSM_RX_WAIT_ACK,
 		FSM_RX_IDLE};
