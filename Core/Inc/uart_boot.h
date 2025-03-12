@@ -19,16 +19,18 @@
 #define BOOT_NACK						0x1F
 
 #define FSM_RX_IDLE						0x00
-#define FSM_RX_WAIT_ACK_START			0x01
-#define FSM_RX_WAIT_ACK_STOP			0x02
+#define FSM_RX_WAIT_ACK					0x01
 #define FSM_RX_CONFIGURE_RECEIVE		0x03
 #define FSM_RX_RECEIVE					0x04
 #define FSM_RX_RECEIVE_N				0x05
 #define FSM_RX_ACK_ERR					0xEF
 
-#define COMMAND_FIRST_ACK				0x55
+
 #define COMMAND_GET_VERSION				0x56
 #define COMMAND_GET_ID					0x57
+#define COMMAND_WAIT_ACK					0x58
+
+#define COMMAND_TEST					0x54
 
 
 uint8_t upd_uart_151_mode = 0;
@@ -42,14 +44,52 @@ typedef struct UPD_TX_s
 }UPD_TX_t;
 UPD_TX_t txCtx;
 
+
+typedef struct CMD_s
+{
+	uint8_t *seq;
+	uint8_t N;
+	uint8_t comCode;
+}CMD_t;
+
 typedef struct UPD_RX_s
 {
 	uint8_t state;                         // fsm state
+	uint8_t stateInd;                         // fsm state
 	uint8_t rxCount;                       // count down the number of bytes to receive
 	uint8_t* ptBuff;
-	uint8_t command;
+	CMD_t *command;
 }UPD_RX_t;
 UPD_RX_t rxCtx;
+
+const uint8_t COM_WAIT_ACK_SEQ[] = {
+		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
+
+const uint8_t COM_GET_VERSION_SEQ[] = {
+		FSM_RX_WAIT_ACK,
+		FSM_RX_RECEIVE,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
+
+const uint8_t COM_GET_ID_SEQ[] = {
+		FSM_RX_WAIT_ACK,
+		FSM_RX_RECEIVE_N,
+		FSM_RX_RECEIVE,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
+
+const uint8_t COM_TEST_SEQ[] = {
+		FSM_RX_WAIT_ACK,
+		FSM_RX_RECEIVE_N,
+		FSM_RX_RECEIVE,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_RECEIVE_N,
+		FSM_RX_RECEIVE,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
+
 
 
 

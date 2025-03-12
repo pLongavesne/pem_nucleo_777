@@ -7,12 +7,17 @@
 
 #include "uart_boot.h"
 #include "stdint.h"
+#include "string.h"
 #include "stm32f767xx.h"
 #include "stm32f7xx_hal.h"
 
 
 
 extern UART_HandleTypeDef huart3;
+
+
+uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
+uint8_t upd_wait_rx_idle_timeout();
 
 void upd_enter_bootloader_mode()
 {
@@ -77,172 +82,83 @@ void upd_151_uart_irq()
 	}
 
 	// receive
+
 	if(huart3.Instance->ISR & USART_ISR_RXNE)
 	{
 		uint8_t b = huart3.Instance->RDR;
-
-		switch (rxCtx.command)
+		//		if(b == 0x02)
+		//		{
+		//			printf("%x",b);
+		//		}
+		switch (rxCtx.state)
 		{
-		case COMMAND_FIRST_ACK:
+		case FSM_RX_WAIT_ACK:
 		{
-			switch (rxCtx.state)
+			// this byte must be a ack
+			if (b != BOOT_ACK)
 			{
-			case FSM_RX_WAIT_ACK_START:
-			{
-				// this byte must be a ack
-				if (b != BOOT_ACK)
-				{
-					rxCtx.state = FSM_RX_ACK_ERR;
-				}
-				else
-				{
-					huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq on RX
-					rxCtx.state = FSM_RX_IDLE;
-				}
-				break;
+				rxCtx.state = FSM_RX_ACK_ERR;
 			}
+			else
+			{
+				//rxCtx.state = FSM_RX_RECEIVE_N;
+				rxCtx.stateInd++;
+				rxCtx.state = rxCtx.command->seq[rxCtx.stateInd];
+
+				*rxCtx.ptBuff = b;
+				rxCtx.ptBuff++;
 			}
 			break;
 		}
-		case COMMAND_GET_VERSION:
+		case FSM_RX_RECEIVE_N:
 		{
-			switch (rxCtx.state)
-			{
-			case FSM_RX_WAIT_ACK_START:
-			{
-				// this byte must be a ack
-				if (b != BOOT_ACK)
-				{
-					rxCtx.state = FSM_RX_ACK_ERR;
-				}
-				rxCtx.state = FSM_RX_RECEIVE;
-				*rxCtx.ptBuff = b;
-				rxCtx.ptBuff++;
-				rxCtx.rxCount = 3;
-				break;
-			}
-			case FSM_RX_RECEIVE:
-			{
-				*rxCtx.ptBuff = b;
-				rxCtx.ptBuff++;
-				rxCtx.rxCount--;
-				if (rxCtx.rxCount == 0)
-				{
-					rxCtx.state = FSM_RX_WAIT_ACK_STOP;
-
-				}
-				break;
-			}
-			case FSM_RX_WAIT_ACK_STOP:
-			{
-				if (b != BOOT_ACK)
-				{
-					rxCtx.state = FSM_RX_ACK_ERR;
-				}
-				else
-				{
-					*rxCtx.ptBuff = b;
-					rxCtx.ptBuff++;
-					rxCtx.rxCount--;
-					huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq on RX
-					rxCtx.state = FSM_RX_IDLE;
-				}
-				break;
-			}
-			case FSM_RX_IDLE:
-			{
-				huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq
-				break;
-			}
-			case FSM_RX_ACK_ERR:
-			{
-				// error on a ACK wait
-				while(1);
-				break;
-			}
-			default:
-			{
-				// error on a FSM state
-				while(1);
-				break;
-			}
-			}
+			*rxCtx.ptBuff = b;
+			rxCtx.ptBuff++;
+			rxCtx.rxCount = b+1;
+			rxCtx.stateInd++;
+			rxCtx.state = rxCtx.command->seq[rxCtx.stateInd];
+			//			rxCtx.state = FSM_RX_RECEIVE;
 			break;
 		}
-		case COMMAND_GET_ID:
+		case FSM_RX_RECEIVE:
 		{
-			switch (rxCtx.state)
+			*rxCtx.ptBuff = b;
+			rxCtx.ptBuff++;
+			rxCtx.rxCount--;
+			if (rxCtx.rxCount == 0)
 			{
-			case FSM_RX_WAIT_ACK_START:
-			{
-				// this byte must be a ack
-				if (b != BOOT_ACK)
-				{
-					rxCtx.state = FSM_RX_ACK_ERR;
-				}
-				rxCtx.state = FSM_RX_RECEIVE_N;
-				*rxCtx.ptBuff = b;
-				rxCtx.ptBuff++;
-
-				break;
-			}
-			case FSM_RX_RECEIVE_N:
-			{
-				*rxCtx.ptBuff = b;
-				rxCtx.ptBuff++;
-				rxCtx.rxCount = b+1;
-				rxCtx.state = FSM_RX_RECEIVE;
-				break;
-			}
-			case FSM_RX_RECEIVE:
-			{
-				*rxCtx.ptBuff = b;
-				rxCtx.ptBuff++;
-				rxCtx.rxCount--;
-				if (rxCtx.rxCount == 0)
-				{
-					rxCtx.state = FSM_RX_WAIT_ACK_STOP;
-
-				}
-				break;
-			}
-			case FSM_RX_WAIT_ACK_STOP:
-			{
-				if (b != BOOT_ACK)
-				{
-					rxCtx.state = FSM_RX_ACK_ERR;
-				}
-				else
-				{
-					*rxCtx.ptBuff = b;
-					rxCtx.ptBuff++;
-					rxCtx.rxCount--;
-					huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq on RX
-					rxCtx.state = FSM_RX_IDLE;
-				}
-				break;
-			}
-			default:
-			{
-				// error on a FSM state
-				while(1);
-				break;
-			}
+				rxCtx.stateInd++;
+				rxCtx.state = rxCtx.command->seq[rxCtx.stateInd];
+				//				rxCtx.state = FSM_RX_WAIT_ACK_STOP;
 
 			}
 			break;
 		}
-
+		case FSM_RX_ACK_ERR:
+		{
+			break;
+		}
+		case FSM_RX_IDLE:
+		{
+			break;
+		}
+		break;
 		default:
 		{
-			huart3.Instance->CR1 &= ~USART_CR1_RXNEIE; //disable irq
+			// error on a FSM state
+			while(1);
 			break;
 		}
+
 		}
+
 
 
 	}
 }
+
+
+
 
 void upd_151_uart_tx(uint8_t *data, int length)
 {
@@ -252,13 +168,23 @@ void upd_151_uart_tx(uint8_t *data, int length)
 	USART3->CR1 |=  USART_CR1_TXEIE;         // enable  IRQ
 }
 
-void upd_151_uart_rx(uint8_t *data, int length, uint8_t command)
+uint8_t upd_151_uart_rx(uint8_t *data, CMD_t *command)
 {
-	rxCtx.ptBuff = data;
-	rxCtx.rxCount = length;
-	rxCtx.state = FSM_RX_WAIT_ACK_START;
-	rxCtx.command = command;
-	USART3->CR1 |=  USART_CR1_RXNEIE;         // enable  IRQ on receive
+	if (rxCtx.state == FSM_RX_IDLE)
+	{
+		rxCtx.ptBuff = data;
+		rxCtx.rxCount = command->N;
+		rxCtx.state = command->seq[0];
+
+		rxCtx.stateInd = 0;
+		rxCtx.command = command;
+		USART3->CR1 |=  USART_CR1_RXNEIE;         // enable  IRQ on receive
+		return HAL_OK;
+	}
+	else
+	{
+		return HAL_ERROR;
+	}
 }
 
 uint8_t upd_151_program()
@@ -282,28 +208,45 @@ uint8_t upd_151_program()
 	//		HAL_Delay(100);
 	//	}
 
-	// commande get version OK
-	//	txBuffer[0] = 0x01;
-	//	txBuffer[1] = 0xfe;
-	//	upd_151_uart_tx(txBuffer, 2);
-	//	upd_151_uart_rx(rxBuffer, 0, COMMAND_GET_VERSION);
-	//	while(rxCtx.state != FSM_RX_IDLE)
-	//	{
-	//		HAL_Delay(100);
-	//	}
+	//*************** commande get version OK ***********************
+//	CMD_t comGetVersion;
+//	comGetVersion.N = 3;
+//	comGetVersion.comCode = COMMAND_GET_VERSION;
+//	comGetVersion.seq = COM_GET_VERSION_SEQ;
+//	txBuffer[0] = 0x01;
+//	txBuffer[1] = 0xfe;
+//	upd_151_uart_tx(txBuffer, 2);
+//	upd_151_uart_rx(rxBuffer, &comGetVersion);
+//	retVal = upd_wait_rx_idle_timeout();
+//	if (retVal == HAL_ERROR)
+//	{
+//		return HAL_ERROR;
+//	}
+	//***************************************************************
+
+
+	//***************** commande get ID OK **************************
 	memset(rxBuffer, 0x00, RX_BUFFER_SIZE);
+	CMD_t comGetId;
+	comGetId.N = 0;
+	comGetId.comCode = COMMAND_GET_ID;
+	comGetId.seq = COM_GET_ID_SEQ;
+
 	// commande get ID OK
 	txBuffer[0] = 0x02;
-	txBuffer[1] = 0xfD;
+	txBuffer[1] = 0xfd;
 	upd_151_uart_tx(txBuffer, 2);
-	upd_151_uart_rx(rxBuffer, 0, COMMAND_GET_ID);
-	while(rxCtx.state != FSM_RX_IDLE)
+	upd_151_uart_rx(rxBuffer, &comGetId);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
 	{
-		HAL_Delay(100);
+		return HAL_ERROR;
 	}
+	//***************************************************************
 
 
-
+	uint8_t pageToErase[] = {1,2,3,4,5};
+	retVal = upd_151_boot_erase(pageToErase, sizeof(pageToErase));
 
 
 
@@ -312,5 +255,69 @@ uint8_t upd_151_program()
 
 
 	while(1);
+	return retVal;
+}
+
+uint8_t upd_wait_rx_idle_timeout()
+{
+	uint32_t t = HAL_GetTick();
+	while(rxCtx.state != FSM_RX_IDLE)
+	{
+		if((HAL_GetTick() - t) > 5000)
+		{
+			return HAL_ERROR;
+		}
+	}
+	return HAL_OK;
+}
+
+uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
+{
+	uint8_t retVal = HAL_OK;
+
+	//send command and the xor of the command
+	uint8_t txBuffer[TX_BUFFER_SIZE] = {0x00};
+	uint8_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+	txBuffer[0] = 0x43;
+	txBuffer[1] = 0xBC;
+	upd_151_uart_tx(txBuffer, 2);
+
+	// wait for ack with timeout
+	CMD_t comWaitAck;
+	comWaitAck.N = 0;
+	comWaitAck.comCode = COMMAND_WAIT_ACK;
+	comWaitAck.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	// creation of the command buffer to send
+	txBuffer[0] = nPage - 1;	// adding number of page to erase
+	uint8_t crc = txBuffer[0];	// init crc
+
+	for (int i=0; i<nPage; i++)	// adding page number
+	{
+		txBuffer[i+1] = pageNumbers[i];
+		crc ^= pageNumbers[i];
+	}
+	txBuffer[nPage+1] = crc;	// adding crc
+
+	//sending the buffer
+	//number of page + pages numbers + checksum
+	upd_151_uart_tx(txBuffer, nPage+2);
+
+	//wait for ack with timeout
+//	comGetId.N = 0;
+//	comGetId.comCode = COMMAND_WAIT_ACK;
+//	comGetId.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
 	return retVal;
 }
