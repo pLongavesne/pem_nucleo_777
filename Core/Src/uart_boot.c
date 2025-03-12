@@ -17,7 +17,9 @@ extern UART_HandleTypeDef huart3;
 
 
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
+uint8_t upd_151_boot_read_memory(uint32_t addr, uint8_t nByte, uint8_t *readBuffer);
 uint8_t upd_wait_rx_idle_timeout();
+uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data);
 
 void upd_enter_bootloader_mode()
 {
@@ -66,6 +68,7 @@ void upd_leave_bootloader_mode()
 }
 void upd_151_uart_irq()
 {
+	// transmit
 	if(huart3.Instance->ISR & USART_ISR_TXE)
 	{
 		if (txCtx.txCount == 0) //nothing to transmit
@@ -82,7 +85,6 @@ void upd_151_uart_irq()
 	}
 
 	// receive
-
 	if(huart3.Instance->ISR & USART_ISR_RXNE)
 	{
 		uint8_t b = huart3.Instance->RDR;
@@ -162,6 +164,12 @@ void upd_151_uart_irq()
 
 void upd_151_uart_tx(uint8_t *data, int length)
 {
+	while(txCtx.state != UPD_TX_IDLE)
+	{
+		HAL_Delay(1);
+	}
+
+
 	txCtx.ptData = data;
 	txCtx.txCount = length;
 	txCtx.state = UPD_TX_BUSY;
@@ -199,7 +207,6 @@ uint8_t upd_151_program()
 	txBuffer[0] = 0x7f;
 	uint8_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
 
-
 	// first ACK OK
 	//	upd_151_uart_rx(rxBuffer, 0, COMMAND_FIRST_ACK);
 	//	upd_151_uart_tx(txBuffer, 1);
@@ -209,44 +216,90 @@ uint8_t upd_151_program()
 	//	}
 
 	//*************** commande get version OK ***********************
-//	CMD_t comGetVersion;
-//	comGetVersion.N = 3;
-//	comGetVersion.comCode = COMMAND_GET_VERSION;
-//	comGetVersion.seq = COM_GET_VERSION_SEQ;
-//	txBuffer[0] = 0x01;
-//	txBuffer[1] = 0xfe;
-//	upd_151_uart_tx(txBuffer, 2);
-//	upd_151_uart_rx(rxBuffer, &comGetVersion);
-//	retVal = upd_wait_rx_idle_timeout();
-//	if (retVal == HAL_ERROR)
-//	{
-//		return HAL_ERROR;
-//	}
+	//	CMD_t comGetVersion;
+	//	comGetVersion.N = 3;
+	//	comGetVersion.comCode = COMMAND_GET_VERSION;
+	//	comGetVersion.seq = COM_GET_VERSION_SEQ;
+	//	txBuffer[0] = 0x01;
+	//	txBuffer[1] = 0xfe;
+	//	upd_151_uart_tx(txBuffer, 2);
+	//	upd_151_uart_rx(rxBuffer, &comGetVersion);
+	//	retVal = upd_wait_rx_idle_timeout();
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
 	//***************************************************************
 
 
 	//***************** commande get ID OK **************************
-	memset(rxBuffer, 0x00, RX_BUFFER_SIZE);
-	CMD_t comGetId;
-	comGetId.N = 0;
-	comGetId.comCode = COMMAND_GET_ID;
-	comGetId.seq = COM_GET_ID_SEQ;
+	//	memset(rxBuffer, 0x00, RX_BUFFER_SIZE);
+	//	CMD_t comGetId;
+	//	comGetId.N = 0;
+	//	comGetId.comCode = COMMAND_GET_ID;
+	//	comGetId.seq = COM_GET_ID_SEQ;
+	//
+	//	// commande get ID OK
+	//	txBuffer[0] = 0x02;
+	//	txBuffer[1] = 0xfd;
+	//	upd_151_uart_tx(txBuffer, 2);
+	//	upd_151_uart_rx(rxBuffer, &comGetId);
+	//	retVal = upd_wait_rx_idle_timeout();
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
+	//***************************************************************
 
-	// commande get ID OK
-	txBuffer[0] = 0x02;
-	txBuffer[1] = 0xfd;
-	upd_151_uart_tx(txBuffer, 2);
-	upd_151_uart_rx(rxBuffer, &comGetId);
-	retVal = upd_wait_rx_idle_timeout();
-	if (retVal == HAL_ERROR)
-	{
-		return HAL_ERROR;
-	}
+	//************** commande erase memory OK ***********************
+	//	uint8_t pageToErase[] = {1,2,3,4,5};
+	//	retVal = upd_151_boot_erase(pageToErase, sizeof(pageToErase));
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
+	//***************************************************************
+
+	//*************** commande read memory OK ***********************
+	//	retVal = upd_151_boot_read_memory(0x01020304, 10, rxBuffer);
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
+	//***************************************************************
+
+	//*************** commande write memory  OK ***********************
+	//	memmove(txBuffer, "abcdefghij",10);
+	//	retVal = upd_151_boot_write_memory(0x01020304, 10, txBuffer);
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
 	//***************************************************************
 
 
-	uint8_t pageToErase[] = {1,2,3,4,5};
-	retVal = upd_151_boot_erase(pageToErase, sizeof(pageToErase));
+
+
+
+	for (int i=0; i<256; i++)
+	{
+		txBuffer[i] = i;
+	}
+	uint32_t addr = 0x00000000;
+	for (int i=0; i<10; i++)
+	{
+		retVal = upd_151_boot_write_memory(addr, 255, txBuffer);
+		if (retVal == HAL_ERROR)
+		{
+			return HAL_ERROR;
+		}
+		addr+=256;
+	}
+
+
+
+
+
 
 
 
@@ -258,17 +311,154 @@ uint8_t upd_151_program()
 	return retVal;
 }
 
+uint8_t upd_151_boot_write_memory(uint32_t addr, uint8_t nBytes, uint8_t *data)
+{
+	uint8_t retVal = HAL_OK;
+	uint8_t txBuffer[TX_BUFFER_SIZE+1] = {0x00};
+	uint8_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+
+	// ********************** send command and xor of the command **********************
+	txBuffer[0] = 0x31;
+	txBuffer[1] = 0xCE;
+	upd_151_uart_tx(txBuffer, 2);
+
+	// ********************** wait for ack with timeout **********************
+	CMD_t comWaitAck;
+	comWaitAck.N = 0;
+	comWaitAck.comCode = COMMAND_WAIT_ACK;
+	comWaitAck.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+
+	//********************** send the addresse to write **********************
+	uint32_t msk = 0xff000000;	// init the mask to parse the address
+	uint8_t crc = 0x00;			//init the crc
+	for (int i=0; i<4; i++)
+	{
+		uint32_t b = (addr & msk);
+		txBuffer[i] = (b>>((3-i)*8));
+		msk = msk >> 8;
+		crc ^= txBuffer[i];
+	}
+	txBuffer[4] = crc;			//adding the crc at the end of the buffer
+	upd_151_uart_tx(txBuffer, 5);
+
+
+	// ********************** wait for ack with timeout **********************
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	// ********************** sending data to write	 **********************
+	memset(txBuffer, 0x00, TX_BUFFER_SIZE);
+	txBuffer[0] = nBytes;			// adding number of byte to write at the beginning of the buffer
+	crc = txBuffer[0];				// init crc
+	for(int i=0; i<nBytes; i++)		// adding data to write in the buffer
+	{
+		txBuffer[i+1] = data[i];
+		crc ^= data[i];
+	}
+	txBuffer[nBytes+1] = crc;		//adding the crc at the end of the buffer
+	upd_151_uart_tx(txBuffer, nBytes+1+1);	//sending nBytes + crc + data
+
+	// ********************** wait for ack with timeout **********************
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	return retVal;
+}
+
 uint8_t upd_wait_rx_idle_timeout()
 {
 	uint32_t t = HAL_GetTick();
 	while(rxCtx.state != FSM_RX_IDLE)
 	{
-		if((HAL_GetTick() - t) > 5000)
+		if((HAL_GetTick() - t) > 5000 || rxCtx.state == FSM_RX_ACK_ERR)
 		{
 			return HAL_ERROR;
 		}
 	}
 	return HAL_OK;
+}
+
+uint8_t upd_151_boot_read_memory(uint32_t addr, uint8_t nByte, uint8_t *readBuffer)
+{
+	uint8_t retVal = HAL_OK;
+	uint8_t txBuffer[TX_BUFFER_SIZE] = {0x00};
+	uint8_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+
+	// ********************** send command and xor of the command **********************
+	txBuffer[0] = 0x11;
+	txBuffer[1] = 0xEE;
+	upd_151_uart_tx(txBuffer, 2);
+
+	// ********************** wait for ack with timeout **********************
+	CMD_t comWaitAck;
+	comWaitAck.N = 0;
+	comWaitAck.comCode = COMMAND_WAIT_ACK;
+	comWaitAck.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	//********************** send the addresse to read **********************
+	uint32_t msk = 0xff000000;	// init the mask to parse the address
+	uint8_t crc = 0x00;			//init the crc
+	for (int i=0; i<4; i++)
+	{
+		uint32_t b = (addr & msk);
+		txBuffer[i] = (b>>((3-i)*8));
+		msk = msk >> 8;
+		crc ^= txBuffer[i];
+	}
+	txBuffer[4] = crc;			//adding the crc at the end of the buffer
+	upd_151_uart_tx(txBuffer, 5);
+
+	// ********************** wait for ack with timeout **********************
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	// ********************** sending the number of bytes to read **********************
+	memset(txBuffer, 0x00, TX_BUFFER_SIZE); //clearing the tx buffer
+	txBuffer[0] = nByte-1;				//nb of byte to read -1
+	txBuffer[1] = (nByte-1)^0xff;		//complement xor
+	upd_151_uart_tx(txBuffer, 2);
+
+	// ********************** receiving the bytes to read **********************
+	CMD_t comRead;
+	comRead.N = nByte;
+	comRead.comCode = COMMAND_READ;
+	comRead.seq = COM_READ_SEQ;
+	upd_151_uart_rx(readBuffer, &comRead);
+
+	// wait for receive complete with timeout
+	retVal = upd_wait_rx_idle_timeout();
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+
+	return retVal;
 }
 
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
@@ -310,9 +500,6 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 	upd_151_uart_tx(txBuffer, nPage+2);
 
 	//wait for ack with timeout
-//	comGetId.N = 0;
-//	comGetId.comCode = COMMAND_WAIT_ACK;
-//	comGetId.seq = COM_WAIT_ACK_SEQ;
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
 	retVal = upd_wait_rx_idle_timeout();
 	if (retVal == HAL_ERROR)

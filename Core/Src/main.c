@@ -133,7 +133,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-	HAL_UART_Receive_IT(&huart3, rxBuff, 1);
+	//HAL_UART_Receive_IT(&huart3, rxBuff, 1);
 	while (1)
 	{
 		upd_151_program();

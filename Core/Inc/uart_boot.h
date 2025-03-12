@@ -8,8 +8,8 @@
 #ifndef INC_UART_BOOT_H_
 #define INC_UART_BOOT_H_
 
-#define RX_BUFFER_SIZE					256
-#define TX_BUFFER_SIZE					256
+#define RX_BUFFER_SIZE					512
+#define TX_BUFFER_SIZE					512
 
 #define UPD_TX_IDLE						0x00
 #define UPD_TX_BUSY						0x01
@@ -28,7 +28,8 @@
 
 #define COMMAND_GET_VERSION				0x56
 #define COMMAND_GET_ID					0x57
-#define COMMAND_WAIT_ACK					0x58
+#define COMMAND_WAIT_ACK				0x58
+#define COMMAND_READ					0x59
 
 #define COMMAND_TEST					0x54
 
@@ -39,7 +40,7 @@ uint8_t upd_uart_151_mode = 0;
 typedef struct UPD_TX_s
 {
 	uint8_t state;                         // State (IDLE, BUSY, ERROR)
-	uint8_t txCount;                         // count down the number of bytes to sent
+	uint32_t txCount;                         // count down the number of bytes to sent
 	uint8_t* ptData;
 }UPD_TX_t;
 UPD_TX_t txCtx;
@@ -56,7 +57,7 @@ typedef struct UPD_RX_s
 {
 	uint8_t state;                         // fsm state
 	uint8_t stateInd;                         // fsm state
-	uint8_t rxCount;                       // count down the number of bytes to receive
+	uint32_t rxCount;                       // count down the number of bytes to receive
 	uint8_t* ptBuff;
 	CMD_t *command;
 }UPD_RX_t;
@@ -88,6 +89,10 @@ const uint8_t COM_TEST_SEQ[] = {
 		FSM_RX_RECEIVE_N,
 		FSM_RX_RECEIVE,
 		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
+
+const uint8_t COM_READ_SEQ[] = {
+		FSM_RX_RECEIVE,
 		FSM_RX_IDLE};
 
 
