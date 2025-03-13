@@ -3,8 +3,8 @@
 ../Core/Src/uart_boot.c:77:6:upd_151_uart_irq	16	static
 ../Core/Src/uart_boot.c:173:6:upd_151_uart_tx	16	static
 ../Core/Src/uart_boot.c:187:9:upd_151_uart_rx	16	static
-../Core/Src/uart_boot.c:206:9:upd_151_program	1040	static
-../Core/Src/uart_boot.c:297:9:upd_151_boot_write_memory	1088	static
-../Core/Src/uart_boot.c:369:9:upd_wait_rx_idle_timeout	16	static
-../Core/Src/uart_boot.c:385:9:upd_151_boot_read_memory	1088	static
-../Core/Src/uart_boot.c:457:9:upd_151_boot_erase	1064	static
+../Core/Src/uart_boot.c:206:9:upd_151_program	1048	static
+../Core/Src/uart_boot.c:321:9:upd_151_boot_write_memory	1088	static
+../Core/Src/uart_boot.c:393:9:upd_wait_rx_idle_timeout	24	static
+../Core/Src/uart_boot.c:409:9:upd_151_boot_read_memory	1096	static
+../Core/Src/uart_boot.c:481:9:upd_151_boot_erase	1064	static

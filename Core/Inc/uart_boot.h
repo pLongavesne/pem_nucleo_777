@@ -30,9 +30,13 @@
 #define COMMAND_GET_ID					0x57
 #define COMMAND_WAIT_ACK				0x58
 #define COMMAND_READ					0x59
+#define COMMAND_GET						0x60
 
 #define COMMAND_TEST					0x54
 
+
+#define TIMEOUT_DEFAULT					5000
+#define TIMEOUT_READ					10000
 
 uint8_t upd_uart_151_mode = 0;
 
@@ -49,7 +53,7 @@ UPD_TX_t txCtx;
 typedef struct CMD_s
 {
 	uint8_t *seq;
-	uint8_t N;
+	uint32_t N;
 	uint8_t comCode;
 }CMD_t;
 
@@ -96,6 +100,12 @@ const uint8_t COM_READ_SEQ[] = {
 		FSM_RX_RECEIVE,
 		FSM_RX_IDLE};
 
+const uint8_t COM_GET_SEQ[] = {
+		FSM_RX_WAIT_ACK,
+		FSM_RX_RECEIVE_N,
+		FSM_RX_RECEIVE,
+		FSM_RX_WAIT_ACK,
+		FSM_RX_IDLE};
 
 
 

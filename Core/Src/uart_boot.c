@@ -18,7 +18,7 @@ extern UART_HandleTypeDef huart3;
 
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
 uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuffer);
-uint8_t upd_wait_rx_idle_timeout();
+uint8_t upd_wait_rx_idle_timeout(uint32_t timeout);
 uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data);
 
 /*
@@ -285,6 +285,30 @@ uint8_t upd_151_program()
 	//	}
 	//***************************************************************
 
+
+	//******************** Command Get OK ******************************
+	//
+	CMD_t comGet;
+	comGet.N = 0;
+	comGet.comCode = COMMAND_GET;
+	comGet.seq = COM_GET_SEQ;
+
+	// commande get
+	txBuffer[0] = 0x00;
+	txBuffer[1] = 0xff;
+	upd_151_uart_tx(txBuffer, 2);
+	upd_151_uart_rx(rxBuffer, &comGet);
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	while(1);
+
+	//***************************************************************
+
+
 	upd_leave_bootloader_mode();
 
 
@@ -311,7 +335,7 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data)
 	comWaitAck.comCode = COMMAND_WAIT_ACK;
 	comWaitAck.seq = COM_WAIT_ACK_SEQ;
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -333,7 +357,7 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data)
 
 	// ********************** wait for ack with timeout **********************
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -353,7 +377,7 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data)
 
 	// ********************** wait for ack with timeout **********************
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -366,18 +390,18 @@ uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data)
  * Wait the RX to do idle
  * Also check if there is not NACK error
  */
-uint8_t upd_wait_rx_idle_timeout()
-{
+uint8_t upd_wait_rx_idle_timeout(uint32_t timeout){
 	uint32_t t = HAL_GetTick();
 	while(rxCtx.state != FSM_RX_IDLE)
 	{
-		if((HAL_GetTick() - t) > 5000 || rxCtx.state == FSM_RX_ACK_ERR)
+		if((HAL_GetTick() - t) > timeout || rxCtx.state == FSM_RX_ACK_ERR)
 		{
 			return HAL_ERROR;
 		}
 	}
 	return HAL_OK;
 }
+
 
 /*
  * Read maximum 256 bytes from addr
@@ -399,7 +423,7 @@ uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuf
 	comWaitAck.comCode = COMMAND_WAIT_ACK;
 	comWaitAck.seq = COM_WAIT_ACK_SEQ;
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -420,7 +444,7 @@ uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuf
 
 	// ********************** wait for ack with timeout **********************
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -440,7 +464,7 @@ uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuf
 	upd_151_uart_rx(readBuffer, &comRead);
 
 	// wait for receive complete with timeout
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -471,7 +495,7 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 	comWaitAck.comCode = COMMAND_WAIT_ACK;
 	comWaitAck.seq = COM_WAIT_ACK_SEQ;
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
@@ -494,7 +518,7 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 
 	//wait for ack with timeout
 	upd_151_uart_rx(rxBuffer, &comWaitAck);
-	retVal = upd_wait_rx_idle_timeout();
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
