@@ -4,7 +4,8 @@
 ../Core/Src/uart_boot.c:173:6:upd_151_uart_tx	2
 ../Core/Src/uart_boot.c:187:9:upd_151_uart_rx	2
 ../Core/Src/uart_boot.c:206:9:upd_151_program	2
-../Core/Src/uart_boot.c:321:9:upd_151_boot_write_memory	6
-../Core/Src/uart_boot.c:393:9:upd_wait_rx_idle_timeout	4
-../Core/Src/uart_boot.c:409:9:upd_151_boot_read_memory	5
-../Core/Src/uart_boot.c:481:9:upd_151_boot_erase	4
+../Core/Src/uart_boot.c:328:9:upd_151_boot_write_memory	6
+../Core/Src/uart_boot.c:400:9:upd_wait_rx_idle_timeout	4
+../Core/Src/uart_boot.c:416:9:upd_151_boot_read_memory	5
+../Core/Src/uart_boot.c:493:9:upd_151_boot_erase_extended	5
+../Core/Src/uart_boot.c:550:9:upd_151_boot_erase	4

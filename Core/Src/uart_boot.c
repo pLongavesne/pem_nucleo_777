@@ -15,7 +15,7 @@
 
 extern UART_HandleTypeDef huart3;
 
-
+uint8_t upd_151_boot_erase_extended(uint16_t *pageNumbers, uint16_t nPage);
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
 uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuffer);
 uint8_t upd_wait_rx_idle_timeout(uint32_t timeout);
@@ -288,27 +288,34 @@ uint8_t upd_151_program()
 
 	//******************** Command Get OK ******************************
 	//
-	CMD_t comGet;
-	comGet.N = 0;
-	comGet.comCode = COMMAND_GET;
-	comGet.seq = COM_GET_SEQ;
+	//	CMD_t comGet;
+	//	comGet.N = 0;
+	//	comGet.comCode = COMMAND_GET;
+	//	comGet.seq = COM_GET_SEQ;
+	//
+	//	// commande get
+	//	txBuffer[0] = 0x00;
+	//	txBuffer[1] = 0xff;
+	//	upd_151_uart_tx(txBuffer, 2);
+	//	upd_151_uart_rx(rxBuffer, &comGet);
+	//	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	//	if (retVal == HAL_ERROR)
+	//	{
+	//		return HAL_ERROR;
+	//	}
+	//
+	//	while(1);
 
-	// commande get
-	txBuffer[0] = 0x00;
-	txBuffer[1] = 0xff;
-	upd_151_uart_tx(txBuffer, 2);
-	upd_151_uart_rx(rxBuffer, &comGet);
-	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	//***************************************************************
+
+	//**************** Command Extended Erase ***********************
+	uint16_t pageToErase[] = {1,2,3,4,5};
+	retVal = upd_151_boot_erase_extended(pageToErase, sizeof(pageToErase)/2);
 	if (retVal == HAL_ERROR)
 	{
 		return HAL_ERROR;
 	}
-
-	while(1);
-
 	//***************************************************************
-
-
 	upd_leave_bootloader_mode();
 
 
@@ -475,8 +482,70 @@ uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuf
 }
 
 /*
+ *	$$ Erase N=nPage pages 0<=N<0xfff0
+ *	For N > 0xfff0 special command are made
+ *	$$ PageNumbers specify the number of the pages to erase
+ *	16bit page numerous MSB first
+ *
+ *	There is 2048 pages in the STM32L151RET6
+ *	maximum nPage = 2048
+ */
+uint8_t upd_151_boot_erase_extended(uint16_t *pageNumbers, uint16_t nPage)
+{
+	uint8_t retVal;
+
+	if (nPage > 2048)	// number of page in the STM32L151RET6
+	{
+		return HAL_ERROR;
+	}
+
+	//send command and the xor of the command
+	uint16_t txBuffer[TX_BUFFER_SIZE] = {0x00};
+	uint16_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+	txBuffer[0] = 0x43BC;
+	upd_151_uart_tx(txBuffer, 2);
+
+	// wait for ack with timeout
+	CMD_t comWaitAck;
+	comWaitAck.N = 0;
+	comWaitAck.comCode = COMMAND_WAIT_ACK;
+	comWaitAck.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	// creation of the command buffer to send
+	txBuffer[0] = nPage;	// adding number of page to erase
+	uint8_t crc = txBuffer[0];	// init crc
+
+	for (int i=0; i<nPage; i++)	// adding page number
+	{
+		txBuffer[i+1] = pageNumbers[i];
+		crc ^= pageNumbers[i];
+	}
+	txBuffer[nPage+1] = crc;	// adding crc
+
+	//sending the buffer
+	//number of page + pages numbers + checksum
+	upd_151_uart_tx(txBuffer, nPage*2+2+1);
+
+	//wait for ack with timeout
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	return retVal;
+}
+
+/*
  *	Erase N=nPage pages
- *	pageNumbers specify the numerous of the pages to erase
+ *	pageNumbers specify the number of the pages to erase
  */
 uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 {
