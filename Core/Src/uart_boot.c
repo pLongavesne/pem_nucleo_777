@@ -594,3 +594,12 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 	}
 	return retVal;
 }
+
+uint8_t upd_151_boot_mass_erase()
+{
+	uint8_t retVal = HAL_OK;
+
+	return retVal;
+
+}
+

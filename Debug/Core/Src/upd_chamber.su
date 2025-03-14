@@ -1,4 +1,0 @@
-../Core/Src/upd_chamber.c:37:14:upd_151_get_ack	4	static
-../Core/Src/upd_chamber.c:43:14:upd_151_get_sysready	4	static
-../Core/Src/upd_chamber.c:49:14:upd_151_send_frame	312	static
-../Core/Src/upd_chamber.c:99:14:upd_151_get_fw_version	32	static
