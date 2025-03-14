@@ -20,6 +20,7 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage);
 uint8_t upd_151_boot_read_memory(uint32_t addr, uint16_t nByte, uint8_t *readBuffer);
 uint8_t upd_wait_rx_idle_timeout(uint32_t timeout);
 uint8_t upd_151_boot_write_memory(uint32_t addr, uint16_t nBytes, uint8_t *data);
+uint8_t upd_151_boot_special_erase(uint8_t mode);
 
 /*
  * Reset the STM32l151 to enter in bootloader mode
@@ -214,6 +215,27 @@ uint8_t upd_151_program()
 	uint8_t txBuffer[TX_BUFFER_SIZE] = {0x00};
 	txBuffer[0] = 0x7f;
 	uint8_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+
+
+
+	retVal = upd_151_boot_special_erase(COM_ERASE_GLOBAL);
+
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+	retVal = upd_151_boot_special_erase(COM_ERASE_BANK_1);
+
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+	retVal = upd_151_boot_special_erase(COM_ERASE_BANK_2);
+
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
 
 	// first ACK OK
 	//	upd_151_uart_rx(rxBuffer, 0, COMMAND_FIRST_ACK);
@@ -595,9 +617,78 @@ uint8_t upd_151_boot_erase(uint8_t *pageNumbers, uint8_t nPage)
 	return retVal;
 }
 
-uint8_t upd_151_boot_mass_erase()
+/*
+ * Sending the an special erase command to the bootloader
+ * INPUT :
+ * 		- mode : select the special erase commande
+ * 				-> COM_ERASE_GLOBAL : global Erase
+ * 				-> COM_ERASE_BANK_1 : bank 1 erase
+ * 				-> COM_ERASE_BANK_2 : bank 2 erase
+ * OUTPUT :
+ *  	- HAL_OK : flash memory erased OK
+ *  	- HAL_ERROR : unknow mode parameter
+ *  		or timeout or nack from bootloader
+ */
+uint8_t upd_151_boot_special_erase(uint8_t mode)
 {
 	uint8_t retVal = HAL_OK;
+
+	uint16_t txBuffer[TX_BUFFER_SIZE] = {0x00};
+	uint16_t rxBuffer[RX_BUFFER_SIZE] = {0x00};
+
+
+	//send command and the xor of the command
+	txBuffer[0] = 0xBB44;
+	upd_151_uart_tx(txBuffer, 2);
+
+	// wait for ack with timeout
+	CMD_t comWaitAck;
+	comWaitAck.N = 0;
+	comWaitAck.comCode = COMMAND_WAIT_ACK;
+	comWaitAck.seq = COM_WAIT_ACK_SEQ;
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+	// sending the erase command
+	if(mode == COM_ERASE_GLOBAL)
+	{
+		txBuffer[0] = 0xFFFF;
+	}
+	else if (mode == COM_ERASE_BANK_1)
+	{
+		txBuffer[0] = 0xFEFF;
+	}
+	else if (mode == COM_ERASE_BANK_2)
+	{
+		txBuffer[0] = 0xFDFF;
+	}
+	else
+	{
+		return HAL_ERROR;
+	}
+	txBuffer[1] = (txBuffer[0] >> 8)^txBuffer[0];
+	upd_151_uart_tx(txBuffer, 3);
+
+
+	//waiting for ack with timeout
+	upd_151_uart_rx(rxBuffer, &comWaitAck);
+	retVal = upd_wait_rx_idle_timeout(TIMEOUT_DEFAULT);
+	if (retVal == HAL_ERROR)
+	{
+		return HAL_ERROR;
+	}
+
+
+
+
+
+
+
+
 
 	return retVal;
 

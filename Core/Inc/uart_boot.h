@@ -38,6 +38,12 @@
 #define TIMEOUT_DEFAULT					5000
 #define TIMEOUT_READ					10000
 
+#define COM_ERASE_GLOBAL 				0x20
+#define COM_ERASE_BANK_1 				0x21
+#define COM_ERASE_BANK_2 				0x22
+
+
+
 uint8_t upd_uart_151_mode = 0;
 
 
